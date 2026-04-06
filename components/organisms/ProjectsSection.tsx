@@ -1,8 +1,9 @@
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SPACING } from '../../constants/typography';
-import AstraHeader from '../molecules/AstraHeader';
-import ProjectCard, { Project } from '../molecules/ProjectCard';
+import AstraHeader from '../molecules/ AstraHeader';
+import ProjectCard, { Project } from '../molecules/ ProjectCard';
+
 
 const PLACEHOLDER_PROJECTS: Project[] = [
   { id: '1', title: 'Proyecto Alfa',  status: 'EN DESARROLLO' },

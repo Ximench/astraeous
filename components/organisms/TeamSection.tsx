@@ -2,8 +2,9 @@ import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SPACING } from '../../constants/typography';
 import AstraDivider from '../atoms/AstraDivider';
-import AstraHeader from '../molecules/AstraHeader';
-import MemberCard, { Member } from '../molecules/MemberCard';
+import AstraHeader from '../molecules/ AstraHeader';
+import MemberCard, { Member } from '../molecules/ MemberCard';
+
 const PLACEHOLDER_MEMBERS: Member[] = [
   { id: '1', name: 'AstraLead',  role: 'FOUNDER',  initials: 'AL', isLead: true },
   { id: '2', name: 'DevPlayer1', role: 'SCRIPTER',  initials: 'D1' },
