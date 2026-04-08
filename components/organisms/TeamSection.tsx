@@ -4,11 +4,48 @@ import AstraDivider from '../atoms/AstraDivider';
 import AstraHeader from '../molecules/ AstraHeader';
 import MemberCard, { Member } from '../molecules/ MemberCard';
 
+// Las imágenes se importan estáticamente para que el bundler de Metro las resuelva
+const PROFILE_PHOTOS: Record<string, any> = {
+  Snova:      require('../../assets/ProfilePhotos/Snova.jpeg'),
+  PF:         require('../../assets/ProfilePhotos/PF.jpeg'),
+  Vichigato:  require('../../assets/ProfilePhotos/Vichigato.jpeg'),
+  Ximench:    require('../../assets/ProfilePhotos/Ximench.jpeg'),
+};
+
 const PLACEHOLDER_MEMBERS: Member[] = [
-  { id: '1', name: 'AstraLead', role: 'FOUNDER', initials: 'AL', isLead: true },
-  { id: '2', name: 'DevPlayer1', role: 'SCRIPTER', initials: 'D1' },
-  { id: '3', name: 'BuilderX', role: 'BUILDER', initials: 'BX' },
-  { id: '4', name: 'UIArtist', role: 'UI/UX', initials: 'UA' },
+  {
+    id:       '1',
+    name:     'Snova',
+    realName: 'Aarón Machuca',
+    role:     'FOUNDER',
+    initials: 'SN',
+    uri:      PROFILE_PHOTOS.Snova,
+    isLead:   true,
+  },
+  {
+    id:       '2',
+    name:     'Flordefuegoyseta',
+    realName: 'Oliver Montalván',
+    role:     'ARTISTA',
+    initials: 'PF',
+    uri:      PROFILE_PHOTOS.PF,
+  },
+  {
+    id:       '3',
+    name:     'Vichigato',
+    realName: 'Vicente Mendieta',
+    role:     'COMPOSITOR',
+    initials: 'VI',
+    uri:      PROFILE_PHOTOS.Vichigato,
+  },
+  {
+    id:       '4',
+    name:     'Ximench',
+    realName: 'Andrés Campoverde',
+    role:     'TESTER',
+    initials: 'XI',
+    uri:      PROFILE_PHOTOS.Ximench,
+  },
 ];
 
 interface TeamSectionProps {
@@ -19,7 +56,7 @@ const TeamSection: React.FC<TeamSectionProps> = ({
   members = PLACEHOLDER_MEMBERS,
 }) => {
   const leads = members.filter((m) => m.isLead);
-  const rest = members.filter((m) => !m.isLead);
+  const rest  = members.filter((m) => !m.isLead);
 
   return (
     <View className="flex-1">
@@ -30,11 +67,15 @@ const TeamSection: React.FC<TeamSectionProps> = ({
       >
         {leads.length > 0 && (
           <>
-            {leads.map(({ id, ...props }) => <MemberCard key={id} {...props} />)}
+            {leads.map(({ id, ...props }) => (
+              <MemberCard key={id} {...props} />
+            ))}
             <AstraDivider variant="dashed" />
           </>
         )}
-        {rest.map(({ id, ...props }) => <MemberCard key={id} {...props} />)}
+        {rest.map(({ id, ...props }) => (
+          <MemberCard key={id} {...props} />
+        ))}
       </ScrollView>
     </View>
   );
