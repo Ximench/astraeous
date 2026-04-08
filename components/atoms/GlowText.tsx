@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, TextProps } from 'react-native';
+import { Text, TextProps } from 'react-native';
 import { COLORS } from '../../constants/colors';
 import { FONTS, FontVariant } from '../../constants/typography';
 
@@ -21,10 +21,16 @@ const GlowText: React.FC<GlowTextProps> = ({
 
   return (
     <Text
+      className={glow ? 'text-[#FFEE8C]' : undefined}
       style={[
         baseFont,
         { color },
-        glow && styles.glow,
+        glow && {
+          color: COLORS.yellowPale,
+          textShadowColor: COLORS.yellowPale,
+          textShadowOffset: { width: 0, height: 0 },
+          textShadowRadius: 12,
+        },
         style,
       ]}
       {...props}
@@ -33,14 +39,5 @@ const GlowText: React.FC<GlowTextProps> = ({
     </Text>
   );
 };
-
-const styles = StyleSheet.create({
-  glow: {
-    color:            COLORS.yellowPale,
-    textShadowColor:  COLORS.yellowPale,
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 12,
-  },
-});
 
 export default GlowText;

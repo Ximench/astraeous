@@ -1,7 +1,6 @@
 import React from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, View } from 'react-native';
 import { COLORS } from '../../constants/colors';
-import { SPACING } from '../../constants/typography';
 import AstraBadge from '../atoms/AstraBadge';
 import AstraButton from '../atoms/AstraButton';
 import GlowText from '../atoms/GlowText';
@@ -25,31 +24,37 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   thumbnailUri,
   onPress,
 }) => (
-  <View style={styles.card}>
+  <View
+    className="overflow-hidden rounded-[12px] border"
+    style={{ backgroundColor: COLORS.backgroundCard, borderColor: COLORS.whiteAlpha10 }}
+  >
     {/* Thumbnail */}
-    <View style={styles.thumbnail}>
+    <View className="h-full" style={{ height: 140, backgroundColor: COLORS.backgroundElevated }}>
       {thumbnailUri ? (
-        <Image source={{ uri: thumbnailUri }} style={styles.thumbnailImg} />
+        <Image source={{ uri: thumbnailUri }} className="h-full w-full" />
       ) : (
-        <View style={styles.thumbnailPlaceholder}>
-          <GlowText variant="display" style={styles.placeholderIcon}>✦</GlowText>
+        <View className="flex-1 items-center justify-center" style={{ backgroundColor: COLORS.purpleAlpha15 }}>
+          <GlowText variant="display" style={{ fontSize: 40, color: COLORS.purpleAlpha30 }}>✦</GlowText>
         </View>
       )}
-      <View style={styles.thumbnailOverlay} />
-      <View style={styles.statusBadge}>
+      <View
+        className="absolute bottom-0 left-0 right-0"
+        style={{ height: 50, backgroundColor: COLORS.backgroundCard, opacity: 0.6 }}
+      />
+      <View className="absolute" style={{ right: 8, top: 8 }}>
         <AstraBadge label={status} variant="status" />
       </View>
     </View>
 
     {/* Contenido */}
-    <View style={styles.content}>
+    <View className="" style={{ padding: 16, gap: 8 }}>
       <GlowText variant="title">{title}</GlowText>
 
       {description ? (
         <GlowText
           variant="body"
           color={COLORS.whiteAlpha80}
-          style={styles.desc}
+          style={{ lineHeight: 20 }}
           numberOfLines={2}
         >
           {description}
@@ -60,63 +65,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         label="VER PROYECTO"
         variant="ghost"
         onPress={onPress}
-        style={styles.cta}
+        style={{ alignSelf: 'flex-start', marginTop: 4 }}
       />
     </View>
   </View>
 );
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: COLORS.backgroundCard,
-    borderRadius:    12,
-    borderWidth:     1,
-    borderColor:     COLORS.whiteAlpha10,
-    overflow:        'hidden',
-  },
-  thumbnail: {
-    height:          140,
-    backgroundColor: COLORS.backgroundElevated,
-  },
-  thumbnailImg: {
-    width:  '100%',
-    height: '100%',
-  },
-  thumbnailPlaceholder: {
-    flex:            1,
-    alignItems:      'center',
-    justifyContent:  'center',
-    backgroundColor: COLORS.purpleAlpha15,
-  },
-  placeholderIcon: {
-    fontSize: 40,
-    color:    COLORS.purpleAlpha30,
-  },
-  thumbnailOverlay: {
-    position:        'absolute',
-    bottom:          0,
-    left:            0,
-    right:           0,
-    height:          50,
-    backgroundColor: COLORS.backgroundCard,
-    opacity:         0.6,
-  },
-  statusBadge: {
-    position: 'absolute',
-    top:      SPACING.sm,
-    right:    SPACING.sm,
-  },
-  content: {
-    padding: SPACING.md,
-    gap:     SPACING.sm,
-  },
-  desc: {
-    lineHeight: 20,
-  },
-  cta: {
-    alignSelf: 'flex-start',
-    marginTop: SPACING.xs,
-  },
-});
 
 export default ProjectCard;

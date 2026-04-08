@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { View, ViewStyle } from 'react-native';
 import { COLORS } from '../../constants/colors';
 
 type DividerVariant = 'line' | 'glow' | 'dashed';
@@ -15,10 +15,23 @@ const AstraDivider: React.FC<AstraDividerProps> = ({
 }) => {
   if (variant === 'glow') {
     return (
-      <View style={[styles.glowContainer, style]}>
-        <View style={styles.glowLine} />
-        <View style={styles.glowDot} />
-        <View style={styles.glowLine} />
+      <View className="flex-row items-center" style={[{ marginVertical: 16 }, style]}>
+        <View className="flex-1" style={{ height: 1, backgroundColor: COLORS.purpleAlpha30 }} />
+        <View
+          className="rounded-full"
+          style={{
+            width: 6,
+            height: 6,
+            marginHorizontal: 10,
+            backgroundColor: COLORS.yellowPale,
+            shadowColor: COLORS.yellowPale,
+            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: 1,
+            shadowRadius: 6,
+            elevation: 4,
+          }}
+        />
+        <View className="flex-1" style={{ height: 1, backgroundColor: COLORS.purpleAlpha30 }} />
       </View>
     );
   }
@@ -26,49 +39,23 @@ const AstraDivider: React.FC<AstraDividerProps> = ({
   return (
     <View
       style={[
-        styles.base,
-        variant === 'dashed' && styles.dashed,
+        { marginVertical: 16 },
+        variant === 'dashed'
+          ? {
+              borderStyle: 'dashed',
+              borderWidth: 1,
+              borderColor: COLORS.purpleAlpha30,
+              backgroundColor: 'transparent',
+              height: 0,
+            }
+          : {
+              height: 1,
+              backgroundColor: COLORS.whiteAlpha10,
+            },
         style,
       ]}
     />
   );
 };
-
-const styles = StyleSheet.create({
-  base: {
-    height:          1,
-    backgroundColor: COLORS.whiteAlpha10,
-    marginVertical:  16,
-  },
-  dashed: {
-    borderStyle:     'dashed',
-    borderWidth:     1,
-    borderColor:     COLORS.purpleAlpha30,
-    backgroundColor: 'transparent',
-    height:          0,
-  },
-  glowContainer: {
-    flexDirection:  'row',
-    alignItems:     'center',
-    marginVertical: 16,
-  },
-  glowLine: {
-    flex:            1,
-    height:          1,
-    backgroundColor: COLORS.purpleAlpha30,
-  },
-  glowDot: {
-    width:           6,
-    height:          6,
-    borderRadius:    3,
-    backgroundColor: COLORS.yellowPale,
-    marginHorizontal: 10,
-    shadowColor:     COLORS.yellowPale,
-    shadowOffset:    { width: 0, height: 0 },
-    shadowOpacity:   1,
-    shadowRadius:    6,
-    elevation:       4,
-  },
-});
 
 export default AstraDivider;

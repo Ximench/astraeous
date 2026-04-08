@@ -1,7 +1,6 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { COLORS } from '../../constants/colors';
-import { SPACING } from '../../constants/typography';
 import AstraAvatar from '../atoms/AstraAvatar';
 import AstraBadge from '../atoms/AstraBadge';
 import GlowText from '../atoms/GlowText';
@@ -24,65 +23,54 @@ const MemberCard: React.FC<MemberCardProps> = ({
   uri,
   isLead   = false,
 }) => (
-  <View style={[styles.card, isLead && styles.cardLead]}>
-    <View style={styles.cornerAccent} />
+  <View
+    className="relative flex-row items-center overflow-hidden rounded-[10px] border"
+    style={[
+      {
+        padding: 16,
+        gap: 16,
+        backgroundColor: COLORS.backgroundCard,
+        borderColor: COLORS.whiteAlpha10,
+      },
+      isLead && {
+        borderColor: COLORS.purpleAlpha30,
+        backgroundColor: COLORS.backgroundElevated,
+      },
+    ]}
+  >
+    <View
+      className="absolute right-0 top-0 rounded-bl-lg border-b border-l"
+      style={{
+        width: 24,
+        height: 24,
+        backgroundColor: COLORS.purpleAlpha15,
+        borderColor: COLORS.purpleAlpha30,
+      }}
+    />
 
     <AstraAvatar initials={initials} uri={uri} size="md" ring={isLead} />
 
-    <View style={styles.info}>
+    <View className="flex-1" style={{ gap: 4 }}>
       <GlowText variant="subtitle" glow={isLead}>{name}</GlowText>
       <AstraBadge label={role} variant={isLead ? 'status' : 'role'} />
     </View>
 
-    {isLead && <View style={styles.leadIndicator} />}
+    {isLead && (
+      <View
+        className="absolute left-0 rounded"
+        style={{
+          width: 3,
+          bottom: 8,
+          top: 8,
+          backgroundColor: COLORS.yellowPale,
+          shadowColor: COLORS.yellowPale,
+          shadowOffset: { width: 0, height: 0 },
+          shadowOpacity: 1,
+          shadowRadius: 6,
+        }}
+      />
+    )}
   </View>
 );
-
-const styles = StyleSheet.create({
-  card: {
-    flexDirection:   'row',
-    alignItems:      'center',
-    backgroundColor: COLORS.backgroundCard,
-    borderWidth:     1,
-    borderColor:     COLORS.whiteAlpha10,
-    borderRadius:    10,
-    padding:         SPACING.md,
-    gap:             SPACING.md,
-    overflow:        'hidden',
-  },
-  cardLead: {
-    borderColor:     COLORS.purpleAlpha30,
-    backgroundColor: COLORS.backgroundElevated,
-  },
-  info: {
-    flex: 1,
-    gap:  SPACING.xs,
-  },
-  cornerAccent: {
-    position:        'absolute',
-    top:             0,
-    right:           0,
-    width:           24,
-    height:          24,
-    borderBottomLeftRadius: 8,
-    backgroundColor: COLORS.purpleAlpha15,
-    borderLeftWidth: 1,
-    borderBottomWidth: 1,
-    borderColor:     COLORS.purpleAlpha30,
-  },
-  leadIndicator: {
-    position:        'absolute',
-    left:            0,
-    top:             8,
-    bottom:          8,
-    width:           3,
-    backgroundColor: COLORS.yellowPale,
-    borderRadius:    2,
-    shadowColor:     COLORS.yellowPale,
-    shadowOffset:    { width: 0, height: 0 },
-    shadowOpacity:   1,
-    shadowRadius:    6,
-  },
-});
 
 export default MemberCard;

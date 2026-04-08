@@ -1,7 +1,8 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { COLORS } from '../constants/colors';
+import '../global.css';
 
 export default function RootLayout() {
   return (
