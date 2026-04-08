@@ -27,8 +27,9 @@ const StarField: React.FC = () => {
       {stars.map((star) => (
         <View
           key={star.id}
+          className="absolute"
           style={[
-            styles.star,
+            { backgroundColor: COLORS.white },
             {
               top:          star.top,
               left:         star.left,
@@ -43,12 +44,5 @@ const StarField: React.FC = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  star: {
-    position:        'absolute',
-    backgroundColor: COLORS.white,
-  },
-});
 
 export default StarField;

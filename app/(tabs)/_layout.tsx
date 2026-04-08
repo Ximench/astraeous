@@ -1,42 +1,80 @@
 import { Tabs } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { COLORS } from '../../constants/colors';
 import { FONTS } from '../../constants/typography';
 
-// ─── Tipos ────────────────────────────────────────────────────────────────────
 interface TabIconProps {
-  symbol:   string;
-  label:    string;
-  focused:  boolean;
+  symbol: string;
+  label: string;
+  focused: boolean;
 }
 
-// ─── Ícono de tab personalizado ───────────────────────────────────────────────
 function TabIcon({ symbol, label, focused }: TabIconProps) {
   return (
-    <View style={styles.tabItem}>
-      {/* Punto activo superior */}
-      {focused && <View style={styles.activeDot} />}
-
-      <Text style={[styles.symbol, focused && styles.symbolActive]}>
+    <View className="items-center justify-center relative" style={{ gap: 2, paddingTop: 4 }}>
+      {focused && (
+        <View
+          style={{
+            position: 'absolute',
+            top: -4,
+            width: 20,
+            height: 2,
+            backgroundColor: COLORS.yellowPale,
+            borderRadius: 1,
+            shadowColor: COLORS.yellowPale,
+            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: 1,
+            shadowRadius: 4,
+          }}
+        />
+      )}
+      <Text
+        style={[
+          { fontSize: 20, color: COLORS.whiteAlpha40 },
+          focused && {
+            color: COLORS.purpleStrong,
+            textShadowColor: COLORS.purpleStrong,
+            textShadowOffset: { width: 0, height: 0 },
+            textShadowRadius: 8,
+          },
+        ]}
+      >
         {symbol}
       </Text>
-
-      <Text style={[styles.label, focused && styles.labelActive]}>
+      <Text
+        style={[
+          FONTS.caption,
+          { fontSize: 9, color: COLORS.whiteAlpha40 },
+          focused && {
+            color: COLORS.yellowPale,
+            textShadowColor: COLORS.yellowPale,
+            textShadowOffset: { width: 0, height: 0 },
+            textShadowRadius: 6,
+          },
+        ]}
+      >
         {label}
       </Text>
     </View>
   );
 }
 
-// ─── Layout ───────────────────────────────────────────────────────────────────
 export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: styles.tabBar,
-        tabBarShowLabel: false,           // Labels los manejamos nosotros
-        tabBarActiveTintColor:   COLORS.yellowPale,
+        tabBarStyle: {
+          backgroundColor: COLORS.backgroundCard,
+          borderTopWidth: 1,
+          borderTopColor: COLORS.purpleAlpha30,
+          height: 64,
+          paddingBottom: 8,
+          paddingTop: 4,
+          elevation: 0,
+        },
+        tabBarShowLabel: false,
+        tabBarActiveTintColor: COLORS.yellowPale,
         tabBarInactiveTintColor: COLORS.whiteAlpha40,
       }}
     >
@@ -75,56 +113,3 @@ export default function TabsLayout() {
     </Tabs>
   );
 }
-
-// ─── Estilos ──────────────────────────────────────────────────────────────────
-const styles = StyleSheet.create({
-  tabBar: {
-    backgroundColor:  COLORS.backgroundCard,
-    borderTopWidth:   1,
-    borderTopColor:   COLORS.purpleAlpha30,
-    height:           64,
-    paddingBottom:    8,
-    paddingTop:       4,
-    elevation:        0,
-  },
-  tabItem: {
-    alignItems:    'center',
-    justifyContent:'center',
-    gap:           2,
-    paddingTop:    4,
-    position:      'relative',
-  },
-  activeDot: {
-    position:        'absolute',
-    top:             -4,
-    width:           20,
-    height:          2,
-    backgroundColor: COLORS.yellowPale,
-    borderRadius:    1,
-    shadowColor:     COLORS.yellowPale,
-    shadowOffset:    { width: 0, height: 0 },
-    shadowOpacity:   1,
-    shadowRadius:    4,
-  },
-  symbol: {
-    fontSize:    20,
-    color:       COLORS.whiteAlpha40,
-  },
-  symbolActive: {
-    color:            COLORS.purpleStrong,
-    textShadowColor:  COLORS.purpleStrong,
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 8,
-  },
-  label: {
-    ...FONTS.caption,
-    fontSize: 9,
-    color:    COLORS.whiteAlpha40,
-  },
-  labelActive: {
-    color:            COLORS.yellowPale,
-    textShadowColor:  COLORS.yellowPale,
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 6,
-  },
-});

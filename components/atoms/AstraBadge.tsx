@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, ViewStyle } from 'react-native';
+import { Text, TextStyle, View, ViewStyle } from 'react-native';
 import { COLORS } from '../../constants/colors';
-import { FONTS, SPACING } from '../../constants/typography';
+import { FONTS } from '../../constants/typography';
 
 type BadgeVariant = 'role' | 'status' | 'tag';
 
@@ -15,45 +15,38 @@ const AstraBadge: React.FC<AstraBadgeProps> = ({
   label,
   variant = 'role',
   style,
-}) => (
-  <View style={[styles.base, styles[variant], style]}>
-    <Text style={[styles.text, styles[`${variant}Text`]]}>{label}</Text>
-  </View>
-);
+}) => {
+  const badgeStyles: Record<BadgeVariant, ViewStyle> = {
+    role: {
+      backgroundColor: COLORS.purpleAlpha30,
+      borderColor: COLORS.purpleStrong,
+    },
+    status: {
+      backgroundColor: COLORS.yellowAlpha30,
+      borderColor: COLORS.yellowPale,
+    },
+    tag: {
+      backgroundColor: COLORS.whiteAlpha10,
+      borderColor: COLORS.whiteAlpha40,
+    },
+  };
 
-const styles = StyleSheet.create({
-  base: {
-    paddingHorizontal: SPACING.sm,
-    paddingVertical:   3,
-    borderRadius:      4,
-    alignSelf:         'flex-start',
-  },
-  text: {
-    ...FONTS.caption,
-    fontSize:   10,
-    fontWeight: '700',
-  },
+  const textStyles: Record<BadgeVariant, TextStyle> = {
+    role: { color: COLORS.purpleStrong },
+    status: { color: COLORS.yellowPale },
+    tag: { color: COLORS.whiteAlpha80 },
+  };
 
-  role: {
-    backgroundColor: COLORS.purpleAlpha30,
-    borderWidth:     1,
-    borderColor:     COLORS.purpleStrong,
-  },
-  roleText: { color: COLORS.purpleStrong },
-
-  status: {
-    backgroundColor: COLORS.yellowAlpha30,
-    borderWidth:     1,
-    borderColor:     COLORS.yellowPale,
-  },
-  statusText: { color: COLORS.yellowPale },
-
-  tag: {
-    backgroundColor: COLORS.whiteAlpha10,
-    borderWidth:     1,
-    borderColor:     COLORS.whiteAlpha40,
-  },
-  tagText: { color: COLORS.whiteAlpha80 },
-});
+  return (
+    <View
+      className="self-start rounded-[4px] border px-[8px] py-[3px]"
+      style={[badgeStyles[variant], style]}
+    >
+      <Text style={[FONTS.caption, { fontSize: 10, fontWeight: '700' }, textStyles[variant]]}>
+        {label}
+      </Text>
+    </View>
+  );
+};
 
 export default AstraBadge;

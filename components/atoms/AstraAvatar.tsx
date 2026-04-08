@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, Text, View } from 'react-native';
 import { COLORS } from '../../constants/colors';
 import { FONTS } from '../../constants/typography';
 
@@ -25,22 +25,33 @@ const AstraAvatar: React.FC<AstraAvatarProps> = ({
   ring = false,
 }) => {
   const dim = SIZES[size];
+  const ringStyle = ring
+    ? {
+        borderColor: COLORS.purpleStrong,
+        shadowColor: COLORS.purpleStrong,
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.8,
+        shadowRadius: 8,
+        elevation: 6,
+      }
+    : null;
 
   return (
     <View
+      className="items-center justify-center border-2 border-transparent"
       style={[
-        styles.wrapper,
         {
           width:        dim + 6,
           height:       dim + 6,
           borderRadius: (dim + 6) / 2,
         },
-        ring && styles.ring,
+        ringStyle,
       ]}
     >
       <View
+        className="items-center justify-center"
         style={[
-          styles.inner,
+          { backgroundColor: COLORS.backgroundElevated },
           { width: dim, height: dim, borderRadius: dim / 2 },
         ]}
       >
@@ -50,7 +61,12 @@ const AstraAvatar: React.FC<AstraAvatarProps> = ({
             style={{ width: dim, height: dim, borderRadius: dim / 2 }}
           />
         ) : (
-          <Text style={[styles.initials, { fontSize: dim * 0.33 }]}>
+          <Text
+            style={[
+              FONTS.subtitle,
+              { color: COLORS.purpleWeak, fontWeight: '700', fontSize: dim * 0.33 },
+            ]}
+          >
             {initials}
           </Text>
         )}
@@ -58,32 +74,5 @@ const AstraAvatar: React.FC<AstraAvatarProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  wrapper: {
-    alignItems:   'center',
-    justifyContent: 'center',
-    borderWidth:  2,
-    borderColor:  'transparent',
-  },
-  ring: {
-    borderColor:  COLORS.purpleStrong,
-    shadowColor:  COLORS.purpleStrong,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 8,
-    elevation:    6,
-  },
-  inner: {
-    backgroundColor: COLORS.backgroundElevated,
-    alignItems:      'center',
-    justifyContent:  'center',
-  },
-  initials: {
-    ...FONTS.subtitle,
-    color:      COLORS.purpleWeak,
-    fontWeight: '700',
-  },
-});
 
 export default AstraAvatar;

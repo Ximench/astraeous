@@ -1,18 +1,11 @@
-import { SafeAreaView, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native';
 import ProfileSection from '../../components/organisms/ ProfileSection';
 import { COLORS } from '../../constants/colors';
 
 export default function ProfileScreen() {
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView className="flex-1" style={{ backgroundColor: COLORS.background }}>
       <ProfileSection />
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-});

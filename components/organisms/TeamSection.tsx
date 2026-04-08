@@ -1,15 +1,14 @@
 import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { SPACING } from '../../constants/typography';
+import { ScrollView, View } from 'react-native';
 import AstraDivider from '../atoms/AstraDivider';
 import AstraHeader from '../molecules/ AstraHeader';
 import MemberCard, { Member } from '../molecules/ MemberCard';
 
 const PLACEHOLDER_MEMBERS: Member[] = [
-  { id: '1', name: 'AstraLead',  role: 'FOUNDER',  initials: 'AL', isLead: true },
-  { id: '2', name: 'DevPlayer1', role: 'SCRIPTER',  initials: 'D1' },
-  { id: '3', name: 'BuilderX',   role: 'BUILDER',   initials: 'BX' },
-  { id: '4', name: 'UIArtist',   role: 'UI/UX',     initials: 'UA' },
+  { id: '1', name: 'AstraLead', role: 'FOUNDER', initials: 'AL', isLead: true },
+  { id: '2', name: 'DevPlayer1', role: 'SCRIPTER', initials: 'D1' },
+  { id: '3', name: 'BuilderX', role: 'BUILDER', initials: 'BX' },
+  { id: '4', name: 'UIArtist', role: 'UI/UX', initials: 'UA' },
 ];
 
 interface TeamSectionProps {
@@ -20,13 +19,13 @@ const TeamSection: React.FC<TeamSectionProps> = ({
   members = PLACEHOLDER_MEMBERS,
 }) => {
   const leads = members.filter((m) => m.isLead);
-  const rest  = members.filter((m) => !m.isLead);
+  const rest = members.filter((m) => !m.isLead);
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1">
       <AstraHeader title="EQUIPO" subtitle="MIEMBROS DE ASTRAEOUS" />
       <ScrollView
-        contentContainerStyle={styles.list}
+        contentContainerStyle={{ padding: 24, gap: 16, paddingBottom: 64 }}
         showsVerticalScrollIndicator={false}
       >
         {leads.length > 0 && (
@@ -40,14 +39,5 @@ const TeamSection: React.FC<TeamSectionProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  list: {
-    padding:       SPACING.lg,
-    gap:           SPACING.md,
-    paddingBottom: SPACING.xxxl,
-  },
-});
 
 export default TeamSection;

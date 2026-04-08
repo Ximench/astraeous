@@ -1,18 +1,11 @@
-import { SafeAreaView, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native';
 import TeamSection from '../../components/organisms/TeamSection';
 import { COLORS } from '../../constants/colors';
 
 export default function TeamScreen() {
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView className="flex-1" style={{ backgroundColor: COLORS.background }}>
       <TeamSection />
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-});

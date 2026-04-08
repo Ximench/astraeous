@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { SafeAreaView, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native';
 import HomeHero from '../../components/organisms/ HomeHero';
 import { COLORS } from '../../constants/colors';
 
@@ -7,7 +7,7 @@ export default function HomeScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView className="flex-1" style={{ backgroundColor: COLORS.background }}>
       <HomeHero
         onPressProjects={() => router.push('/(tabs)/projects')}
         onPressTeam={() => router.push('/(tabs)/team')}
@@ -15,10 +15,3 @@ export default function HomeScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-});

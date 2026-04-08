@@ -1,18 +1,11 @@
-import { SafeAreaView, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native';
 import ProjectsSection from '../../components/organisms/ProjectsSection';
 import { COLORS } from '../../constants/colors';
 
 export default function ProjectsScreen() {
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView className="flex-1" style={{ backgroundColor: COLORS.background }}>
       <ProjectsSection />
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-});
