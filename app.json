@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "astraeous",
-    "slug": "astraeous",
+    "slug": "astraeous-bufouv7qvxsodm6qsfbjv",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -45,6 +45,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "449281e0-0162-4a97-a6d3-de7f60f5d5c2"
+      }
+    },
+    "owner": "vichigato"
   }
 }

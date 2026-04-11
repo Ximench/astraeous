@@ -4,11 +4,11 @@ import { FolderKanban, House, UserRoundCog, UsersRound } from 'lucide-react-nati
 import { type ComponentType, useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withTiming,
+    Easing,
+    useAnimatedStyle,
+    useSharedValue,
+    withDelay,
+    withTiming,
 } from 'react-native-reanimated';
 import { COLORS } from '../../constants/colors';
 
@@ -72,6 +72,7 @@ function SpaceTabBar(props: BottomTabBarProps) {
         easing: Easing.out(Easing.cubic),
       })
     );
+
   }, [barWidth, bubbleX, props.state.index, props.state.routes.length, trailX1, trailX2]);
 
   const bubbleStyle = useAnimatedStyle(() => ({
