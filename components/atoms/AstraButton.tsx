@@ -1,12 +1,10 @@
 import React from 'react';
 import {
     Text,
-    TextStyle,
     TouchableOpacity,
     View,
     ViewStyle,
 } from 'react-native';
-import { COLORS } from '../../constants/colors';
 import { FONTS } from '../../constants/typography';
 
 type ButtonVariant = 'primary' | 'secondary' | 'accent' | 'ghost';
@@ -28,30 +26,18 @@ const AstraButton: React.FC<AstraButtonProps> = ({
   fullWidth = false,
   style,
 }) => {
-  const variantStyles: Record<ButtonVariant, ViewStyle> = {
-    primary: {
-      backgroundColor: COLORS.purpleStrong,
-      borderWidth: 1,
-      borderColor: COLORS.purpleMid,
-    },
-    secondary: {
-      backgroundColor: 'transparent',
-      borderWidth: 1.5,
-      borderColor: COLORS.purpleStrong,
-    },
-    accent: {
-      backgroundColor: COLORS.yellowPale,
-    },
-    ghost: {
-      backgroundColor: COLORS.purpleAlpha15,
-    },
+  const variantClassNames: Record<ButtonVariant, string> = {
+    primary:   'bg-purple-strong border border-purple-mid',
+    secondary: 'border-[1.5px] border-purple-strong',
+    accent:    'bg-yellow-pale',
+    ghost:     'bg-purple-alpha-15',
   };
 
-  const labelStyles: Record<ButtonVariant, TextStyle> = {
-    primary: { color: COLORS.white },
-    secondary: { color: COLORS.purpleStrong },
-    accent: { color: COLORS.purpleDeep },
-    ghost: { color: COLORS.whiteAlpha80 },
+  const labelClassNames: Record<ButtonVariant, string> = {
+    primary:   'text-white',
+    secondary: 'text-purple-strong',
+    accent:    'text-purple-deep',
+    ghost:     'text-white-alpha-80',
   };
 
   return (
@@ -59,14 +45,13 @@ const AstraButton: React.FC<AstraButtonProps> = ({
       onPress={onPress}
       disabled={disabled}
       activeOpacity={0.7}
-      className="relative flex-row items-center justify-center overflow-hidden"
+      className={`relative flex-row items-center justify-center overflow-hidden ${variantClassNames[variant]}`}
       style={[
         {
           paddingHorizontal: 24,
           paddingVertical: 10,
           borderRadius: 6,
         },
-        variantStyles[variant],
         fullWidth && { width: '100%' },
         disabled && { opacity: 0.4 },
         style,
@@ -74,11 +59,10 @@ const AstraButton: React.FC<AstraButtonProps> = ({
     >
       {variant === 'primary' && (
         <View
-          className="absolute bottom-[4px] left-0 top-[4px] w-[3px] rounded-[2px]"
-          style={{ backgroundColor: COLORS.yellowPale }}
+          className="absolute bottom-[4px] left-0 top-[4px] w-[3px] rounded-[2px] bg-yellow-pale"
         />
       )}
-      <Text style={[FONTS.caption, { fontWeight: '700' }, labelStyles[variant]]}>{label}</Text>
+      <Text className={labelClassNames[variant]} style={[FONTS.caption, { fontWeight: '700' }]}>{label}</Text>
     </TouchableOpacity>
   );
 };

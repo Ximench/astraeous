@@ -19,15 +19,14 @@ const AstraHeader: React.FC<AstraHeaderProps> = ({
     {showLogo && (
       <View className="flex-row items-center" style={{ gap: 8, marginBottom: 16 }}>
         <View
-          className="items-center justify-center rounded-full border"
-          style={{ width: 20, height: 20, borderWidth: 1.5, borderColor: COLORS.purpleStrong }}
+          className="items-center justify-center rounded-full border border-purple-strong"
+          style={{ width: 20, height: 20, borderWidth: 1.5 }}
         >
           <View
-            className="rounded-full"
+            className="rounded-full bg-purple-strong"
             style={{
               width: 8,
               height: 8,
-              backgroundColor: COLORS.purpleStrong,
               shadowColor: COLORS.purpleStrong,
               shadowOffset: { width: 0, height: 0 },
               shadowOpacity: 1,
@@ -43,12 +42,11 @@ const AstraHeader: React.FC<AstraHeaderProps> = ({
 
     <View className="flex-row items-start" style={{ gap: 8 }}>
       <View
-        className="rounded"
+        className="rounded bg-yellow-pale"
         style={{
           width: 3,
           height: 48,
           marginTop: 4,
-          backgroundColor: COLORS.yellowPale,
           shadowColor: COLORS.yellowPale,
           shadowOffset: { width: 0, height: 0 },
           shadowOpacity: 0.8,

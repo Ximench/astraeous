@@ -21,15 +21,15 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ onEditProfile }) => (
     showsVerticalScrollIndicator={false}
   >
     <View
-      className="overflow-hidden border-b"
-      style={{ height: 160, backgroundColor: COLORS.backgroundElevated, borderBottomColor: COLORS.purpleAlpha30 }}
+      className="overflow-hidden border-b border-purple-alpha-30 bg-background-elevated"
+      style={{ height: 160 }}
     >
       <StarField />
       {[0.2, 0.5, 0.75].map((top, i) => (
         <View
           key={i}
-          className="absolute left-0 right-0 h-px"
-          style={{ top: `${top * 100}%`, opacity: 0.15 - i * 0.03, backgroundColor: COLORS.purpleStrong }}
+          className="absolute left-0 right-0 h-px bg-purple-strong"
+          style={{ top: `${top * 100}%`, opacity: 0.15 - i * 0.03 }}
         />
       ))}
     </View>

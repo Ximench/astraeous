@@ -15,8 +15,8 @@ const AstraDivider: React.FC<AstraDividerProps> = ({
 }) => {
   if (variant === 'glow') {
     return (
-      <View className="flex-row items-center" style={[{ marginVertical: 16 }, style]}>
-        <View className="flex-1" style={{ height: 1, backgroundColor: COLORS.purpleAlpha30 }} />
+      <View className="my-4 flex-row items-center" style={style}>
+        <View className="h-px flex-1 bg-purple-alpha-30" />
         <View
           className="rounded-full"
           style={{
@@ -31,29 +31,24 @@ const AstraDivider: React.FC<AstraDividerProps> = ({
             elevation: 4,
           }}
         />
-        <View className="flex-1" style={{ height: 1, backgroundColor: COLORS.purpleAlpha30 }} />
+        <View className="h-px flex-1 bg-purple-alpha-30" />
       </View>
+    );
+  }
+
+  if (variant === 'dashed') {
+    return (
+      <View
+        className="my-4 h-0 border border-dashed border-purple-alpha-30"
+        style={style}
+      />
     );
   }
 
   return (
     <View
-      style={[
-        { marginVertical: 16 },
-        variant === 'dashed'
-          ? {
-              borderStyle: 'dashed',
-              borderWidth: 1,
-              borderColor: COLORS.purpleAlpha30,
-              backgroundColor: 'transparent',
-              height: 0,
-            }
-          : {
-              height: 1,
-              backgroundColor: COLORS.whiteAlpha10,
-            },
-        style,
-      ]}
+      className="my-4 h-px bg-white-alpha-10"
+      style={style}
     />
   );
 };

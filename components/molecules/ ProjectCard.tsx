@@ -25,11 +25,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   onPress,
 }) => (
   <View
-    className="overflow-hidden rounded-[12px] border"
-    style={{ backgroundColor: COLORS.backgroundCard, borderColor: COLORS.whiteAlpha10 }}
+    className="overflow-hidden rounded-[12px] border border-white-alpha-10 bg-background-card"
   >
     {/* Thumbnail */}
-    <View style={{ height: 140, backgroundColor: COLORS.backgroundElevated }}>
+    <View className="bg-background-elevated" style={{ height: 140 }}>
       {thumbnailUri ? (
         <Image
           source={thumbnailUri}
@@ -37,20 +36,15 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           resizeMode="cover"
         />
       ) : (
-        <View
-          className="flex-1 items-center justify-center"
-          style={{ backgroundColor: COLORS.purpleAlpha15 }}
-        >
-          <GlowText variant="display" style={{ fontSize: 40, color: COLORS.purpleAlpha30 }}>
-            ✦
-          </GlowText>
+        <View className="flex-1 items-center justify-center bg-purple-alpha-15">
+          <GlowText variant="display" className="text-purple-alpha-30" style={{ fontSize: 40 }}>✦</GlowText>
         </View>
       )}
 
       {/* Degradado inferior */}
       <View
-        className="absolute bottom-0 left-0 right-0"
-        style={{ height: 50, backgroundColor: COLORS.backgroundCard, opacity: 0.6 }}
+        className="absolute bottom-0 left-0 right-0 bg-background-card opacity-60"
+        style={{ height: 50 }}
       />
 
       {/* Badge de status */}
@@ -66,7 +60,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       {description ? (
         <GlowText
           variant="body"
-          color={COLORS.whiteAlpha80}
+          className="text-white-alpha-80"
           style={{ lineHeight: 20 }}
           numberOfLines={2}
         >

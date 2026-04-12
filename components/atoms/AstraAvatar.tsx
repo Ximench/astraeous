@@ -49,11 +49,8 @@ const AstraAvatar: React.FC<AstraAvatarProps> = ({
       ]}
     >
       <View
-        className="items-center justify-center"
-        style={[
-          { backgroundColor: COLORS.backgroundElevated },
-          { width: dim, height: dim, borderRadius: dim / 2 },
-        ]}
+        className="items-center justify-center bg-background-elevated"
+        style={[{ width: dim, height: dim, borderRadius: dim / 2 }]}
       >
         {uri ? (
           <Image

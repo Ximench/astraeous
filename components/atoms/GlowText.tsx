@@ -15,13 +15,15 @@ const GlowText: React.FC<GlowTextProps> = ({
   color = COLORS.white,
   glow = false,
   style,
+  className,
   ...props
 }) => {
   const baseFont = FONTS[variant] ?? FONTS.body;
+  const mergedClassName = [glow ? 'text-[#FFEE8C]' : '', className].filter(Boolean).join(' ') || undefined;
 
   return (
     <Text
-      className={glow ? 'text-[#FFEE8C]' : undefined}
+      className={mergedClassName}
       style={[
         baseFont,
         { color },
