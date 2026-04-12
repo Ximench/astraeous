@@ -24,28 +24,16 @@ const MemberCard: React.FC<MemberCardProps> = ({
   isLead   = false,
 }) => (
   <View
-    className="relative flex-row items-center overflow-hidden rounded-[10px] border"
-    style={[
-      {
-        padding: 16,
-        gap: 16,
-        backgroundColor: COLORS.backgroundCard,
-        borderColor: COLORS.whiteAlpha10,
-      },
-      isLead && {
-        borderColor: COLORS.purpleAlpha30,
-        backgroundColor: COLORS.backgroundElevated,
-      },
-    ]}
+    className={`relative flex-row items-center overflow-hidden rounded-[10px] border ${
+      isLead
+        ? 'border-purple-alpha-30 bg-background-elevated'
+        : 'border-white-alpha-10 bg-background-card'
+    }`}
+    style={{ padding: 16, gap: 16 }}
   >
     <View
-      className="absolute right-0 top-0 rounded-bl-lg border-b border-l"
-      style={{
-        width: 24,
-        height: 24,
-        backgroundColor: COLORS.purpleAlpha15,
-        borderColor: COLORS.purpleAlpha30,
-      }}
+      className="absolute right-0 top-0 rounded-bl-lg border-b border-l border-purple-alpha-30 bg-purple-alpha-15"
+      style={{ width: 24, height: 24 }}
     />
 
     <AstraAvatar initials={initials} uri={uri} size="md" ring={isLead} />
@@ -57,12 +45,11 @@ const MemberCard: React.FC<MemberCardProps> = ({
 
     {isLead && (
       <View
-        className="absolute left-0 rounded"
+        className="absolute left-0 rounded bg-yellow-pale"
         style={{
           width: 3,
           bottom: 8,
           top: 8,
-          backgroundColor: COLORS.yellowPale,
           shadowColor: COLORS.yellowPale,
           shadowOffset: { width: 0, height: 0 },
           shadowOpacity: 1,

@@ -101,14 +101,12 @@ function SpaceTabBar(props: BottomTabBarProps) {
   };
 
   return (
-    <View style={{ backgroundColor: COLORS.backgroundCard, paddingBottom: insets.bottom }}>
+    <View className="bg-background-card" style={{ paddingBottom: insets.bottom }}>
       <View
-        className="relative flex-row"
+        className="relative flex-row border-t border-purple-alpha-30"
         style={{
           height: TAB_BAR_HEIGHT,
           paddingHorizontal: TAB_BAR_INSET,
-          borderTopWidth: 1,
-          borderTopColor: COLORS.purpleAlpha30,
         }}
         onLayout={(event) => setBarWidth(event.nativeEvent.layout.width)}
       >

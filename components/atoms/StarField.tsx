@@ -9,7 +9,6 @@ import Animated, {
     withSequence,
     withTiming,
 } from 'react-native-reanimated';
-import { COLORS } from '../../constants/colors';
 
 interface Star {
   id:        number;
@@ -81,10 +80,9 @@ const StarParticle: React.FC<Star> = React.memo(({
 
   return (
     <AnimatedView
-      className="absolute"
+      className="absolute bg-white"
       style={[
         {
-          backgroundColor: COLORS.white,
           top,
           left,
           width: size,

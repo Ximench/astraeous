@@ -1,6 +1,5 @@
 import React from 'react';
 import { Image, View } from 'react-native';
-import { COLORS } from '../../constants/colors';
 import AstraBadge from '../atoms/AstraBadge';
 import AstraButton from '../atoms/AstraButton';
 import GlowText from '../atoms/GlowText';
@@ -25,21 +24,20 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   onPress,
 }) => (
   <View
-    className="overflow-hidden rounded-[12px] border"
-    style={{ backgroundColor: COLORS.backgroundCard, borderColor: COLORS.whiteAlpha10 }}
+    className="overflow-hidden rounded-[12px] border border-white-alpha-10 bg-background-card"
   >
     {/* Thumbnail */}
-    <View className="h-full" style={{ height: 140, backgroundColor: COLORS.backgroundElevated }}>
+    <View className="bg-background-elevated" style={{ height: 140 }}>
       {thumbnailUri ? (
         <Image source={{ uri: thumbnailUri }} className="h-full w-full" />
       ) : (
-        <View className="flex-1 items-center justify-center" style={{ backgroundColor: COLORS.purpleAlpha15 }}>
-          <GlowText variant="display" style={{ fontSize: 40, color: COLORS.purpleAlpha30 }}>✦</GlowText>
+        <View className="flex-1 items-center justify-center bg-purple-alpha-15">
+          <GlowText variant="display" style={{ fontSize: 40, color: 'rgba(120,68,229,0.3)' }}>✦</GlowText>
         </View>
       )}
       <View
-        className="absolute bottom-0 left-0 right-0"
-        style={{ height: 50, backgroundColor: COLORS.backgroundCard, opacity: 0.6 }}
+        className="absolute bottom-0 left-0 right-0 bg-background-card opacity-60"
+        style={{ height: 50 }}
       />
       <View className="absolute" style={{ right: 8, top: 8 }}>
         <AstraBadge label={status} variant="status" />
@@ -47,13 +45,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     </View>
 
     {/* Contenido */}
-    <View className="" style={{ padding: 16, gap: 8 }}>
+    <View style={{ padding: 16, gap: 8 }}>
       <GlowText variant="title">{title}</GlowText>
 
       {description ? (
         <GlowText
           variant="body"
-          color={COLORS.whiteAlpha80}
+          color="rgba(255,255,255,0.8)"
           style={{ lineHeight: 20 }}
           numberOfLines={2}
         >
