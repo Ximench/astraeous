@@ -10,6 +10,7 @@ import Animated, {
     withDelay,
     withTiming,
 } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '../../constants/colors';
 
 type LucideIcon = ComponentType<{
@@ -44,6 +45,7 @@ function SpaceTabBar(props: BottomTabBarProps) {
   const trailX1 = useSharedValue(TAB_BAR_INSET);
   const trailX2 = useSharedValue(TAB_BAR_INSET);
   const [barWidth, setBarWidth] = useState(0);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (barWidth <= 0) return;
@@ -54,20 +56,24 @@ function SpaceTabBar(props: BottomTabBarProps) {
     const localSlotWidth = availableWidth / count;
     const targetX = TAB_BAR_INSET + props.state.index * localSlotWidth + localSlotWidth / 2 - BUBBLE_WIDTH / 2;
 
-    bubbleX.value = withTiming(targetX, {
+    const minX = TAB_BAR_INSET;
+    const maxX = Math.max(minX, barWidth - TAB_BAR_INSET - BUBBLE_WIDTH);
+    const clampedTargetX = Math.min(Math.max(targetX, minX), maxX);
+
+    bubbleX.value = withTiming(clampedTargetX, {
       duration: 280,
       easing: Easing.out(Easing.cubic),
     });
     trailX1.value = withDelay(
       50,
-      withTiming(targetX, {
+      withTiming(clampedTargetX, {
         duration: 320,
         easing: Easing.out(Easing.cubic),
       })
     );
     trailX2.value = withDelay(
       100,
-      withTiming(targetX, {
+      withTiming(clampedTargetX, {
         duration: 360,
         easing: Easing.out(Easing.cubic),
       })
@@ -95,7 +101,7 @@ function SpaceTabBar(props: BottomTabBarProps) {
   };
 
   return (
-    <View style={{ backgroundColor: COLORS.backgroundCard }}>
+    <View style={{ backgroundColor: COLORS.backgroundCard, paddingBottom: insets.bottom }}>
       <View
         className="relative flex-row"
         style={{
@@ -184,7 +190,7 @@ function SpaceTabBar(props: BottomTabBarProps) {
           return (
             <Pressable
               key={route.key}
-              accessibilityRole="button"
+              accessibilityRole="tab"
               accessibilityState={focused ? { selected: true } : {}}
               accessibilityLabel={props.descriptors[route.key].options.tabBarAccessibilityLabel}
               testID={props.descriptors[route.key].options.tabBarButtonTestID}

@@ -113,7 +113,7 @@ const StarField: React.FC = () => {
   );
 
   return (
-    <View className="absolute inset-0 pointer-events-none overflow-hidden">
+    <View pointerEvents="none" className="absolute inset-0 overflow-hidden">
       {stars.map((star) => (
         <StarParticle key={star.id} {...star} />
       ))}

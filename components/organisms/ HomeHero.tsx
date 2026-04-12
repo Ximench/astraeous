@@ -54,7 +54,93 @@ function OrbScene() {
   const line = useAnimatedStyle(() => ({ opacity: interpolate(beat.value, [0, 0.18, 1], [0.22, 0.12, 0]), transform: [{ scale: interpolate(beat.value, [0, 1], [0.18, 1.42]) }] }));
   const glow = useAnimatedStyle(() => ({ opacity: interpolate(halo.value, [0, 0.72, 1], [0, 0.72, 0]), transform: [{ scale: interpolate(halo.value, [0, 1], [0.96, 1.22]) }] }));
 
-  return <View className="items-center justify-center" style={{ width: 224, height: 224, marginBottom: 16 }}><AnimatedView pointerEvents="none" className="absolute rounded-full" style={[{ width: 144, height: 144, borderRadius: 72, backgroundColor: COLORS.purpleAlpha15, shadowColor: COLORS.purpleStrong, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.32, shadowRadius: 18 }, glow]} /><View className="absolute items-center justify-center">{ORBITS.map(({ size, c, o }) => <AnimatedView key={size} pointerEvents="none" className="absolute rounded-full" style={[{ width: size, height: size, marginLeft: o, marginTop: o, borderWidth: 0.8, borderColor: c, backgroundColor: 'transparent' }, line]} />)}</View><AnimatedView className="items-center justify-center rounded-full border" style={[{ width: 132, height: 132, borderColor: COLORS.purpleAlpha15, shadowColor: COLORS.purpleStrong, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.6, shadowRadius: 14, backgroundColor: COLORS.purpleAlpha15 }, shell]}><AnimatedView className="items-center justify-center rounded-full border" style={[{ width: 94, height: 94, borderColor: COLORS.purpleAlpha15 }, inner]}><AnimatedView className="items-center justify-center rounded-full border" style={[{ width: 64, height: 64, backgroundColor: COLORS.purpleAlpha15, borderColor: COLORS.purpleStrong, shadowColor: COLORS.purpleStrong, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.85, shadowRadius: 12 }, core]}><GlowText variant="display" glow style={{ fontSize: 30 }}>✦</GlowText></AnimatedView></AnimatedView></AnimatedView></View>;
+  const containerStyle = { width: 224, height: 224, marginBottom: 16 };
+  const glowOrbStyle = {
+    width: 144,
+    height: 144,
+    borderRadius: 72,
+    backgroundColor: COLORS.purpleAlpha15,
+    shadowColor: COLORS.purpleStrong,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.32,
+    shadowRadius: 18,
+  };
+  const shellBaseStyle = {
+    width: 132,
+    height: 132,
+    borderColor: COLORS.purpleAlpha15,
+    shadowColor: COLORS.purpleStrong,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 14,
+    backgroundColor: COLORS.purpleAlpha15,
+  };
+  const innerBaseStyle = {
+    width: 94,
+    height: 94,
+    borderColor: COLORS.purpleAlpha15,
+  };
+  const coreBaseStyle = {
+    width: 64,
+    height: 64,
+    backgroundColor: COLORS.purpleAlpha15,
+    borderColor: COLORS.purpleStrong,
+    shadowColor: COLORS.purpleStrong,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.85,
+    shadowRadius: 12,
+  };
+
+  return (
+    <View className="items-center justify-center" style={containerStyle}>
+      <AnimatedView
+        pointerEvents="none"
+        className="absolute rounded-full"
+        style={[glowOrbStyle, glow]}
+      />
+
+      <View className="absolute items-center justify-center">
+        {ORBITS.map(({ size, c, o }) => (
+          <AnimatedView
+            key={size}
+            pointerEvents="none"
+            className="absolute rounded-full"
+            style={[
+              {
+                width: size,
+                height: size,
+                marginLeft: o,
+                marginTop: o,
+                borderWidth: 0.8,
+                borderColor: c,
+                backgroundColor: 'transparent' as const,
+              },
+              line,
+            ]}
+          />
+        ))}
+      </View>
+
+      <AnimatedView
+        className="items-center justify-center rounded-full border"
+        style={[shellBaseStyle, shell]}
+      >
+        <AnimatedView
+          className="items-center justify-center rounded-full border"
+          style={[innerBaseStyle, inner]}
+        >
+          <AnimatedView
+            className="items-center justify-center rounded-full border"
+            style={[coreBaseStyle, core]}
+          >
+            <GlowText variant="display" glow style={{ fontSize: 30 }}>
+              ✦
+            </GlowText>
+          </AnimatedView>
+        </AnimatedView>
+      </AnimatedView>
+    </View>
+  );
 }
 
 const HomeHero: React.FC<HomeHeroProps> = ({
