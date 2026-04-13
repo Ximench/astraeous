@@ -9,47 +9,87 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Audio } from 'expo-av';
 import { COLORS } from '../../constants/colors';
 import { getGameById } from '../../constants/games';
 import AstraBadge from '../../components/atoms/AstraBadge';
 import GlowText from '../../components/atoms/GlowText';
 import AstraDivider from '../../components/atoms/AstraDivider';
 
+// ── Canciones por id de juego ─────────────────────────────────────────────────
+const GAME_SONGS: Record<string, any> = {
+  'outcome-memories': require('../../assets/GameSongs/OM.wav'),
+  'grace':            require('../../assets/GameSongs/GR.wav'),
+  'doors':            require('../../assets/GameSongs/DO.wav'),
+};
+
 export default function GameDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
-  const game   = getGameById(id);
+  const { id }   = useLocalSearchParams<{ id: string }>();
+  const router   = useRouter();
+  const game     = getGameById(id);
+  const soundRef = useRef<Audio.Sound | null>(null);
 
-  // ── Animaciones ──────────────────────────────────────────────────────────
-  const fadeAnim    = useRef(new Animated.Value(0)).current;  // fundido entrada
-  const slideAnim   = useRef(new Animated.Value(30)).current; // contenido sube
-  const imageScale  = useRef(new Animated.Value(1.08)).current; // Ken Burns sutil
+  // ── Animaciones ───────────────────────────────────────────────────────────
+  const fadeAnim   = useRef(new Animated.Value(0)).current;
+  const slideAnim  = useRef(new Animated.Value(30)).current;
+  const imageScale = useRef(new Animated.Value(1.08)).current;
 
+  // ── Audio + animaciones al montar ─────────────────────────────────────────
   useEffect(() => {
+    // Animaciones de entrada
     Animated.parallel([
-      // Fundido de pantalla completa
       Animated.timing(fadeAnim, {
         toValue:         1,
         duration:        420,
         useNativeDriver: true,
       }),
-      // Contenido sube suavemente
       Animated.timing(slideAnim, {
         toValue:         0,
         duration:        480,
         delay:           80,
         useNativeDriver: true,
       }),
-      // Imagen hace zoom-out sutil
       Animated.timing(imageScale, {
         toValue:         1,
         duration:        600,
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
 
-  // Juego no encontrado
+    // Cargar y reproducir canción del juego
+    const loadAndPlay = async () => {
+      try {
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,  // suena aunque el iPhone esté en silencio
+        });
+
+        const song = GAME_SONGS[id];
+        if (!song) return;
+
+        const { sound } = await Audio.Sound.createAsync(song, {
+          shouldPlay: true,
+          isLooping:  true,
+          volume:     0.7,
+        });
+
+        soundRef.current = sound;
+      } catch (e) {
+        // Si falla el audio la pantalla sigue funcionando
+        console.warn('Error cargando audio:', e);
+      }
+    };
+
+    loadAndPlay();
+
+    // Detener y liberar al salir de la pantalla
+    return () => {
+      soundRef.current?.stopAsync().then(() => {
+        soundRef.current?.unloadAsync();
+      });
+    };
+  }, [id]);
+
+  // ── Juego no encontrado ───────────────────────────────────────────────────
   if (!game) {
     return (
       <SafeAreaView style={styles.screen}>
@@ -64,7 +104,6 @@ export default function GameDetailScreen() {
   }
 
   return (
-    // Capa de fundido que envuelve toda la pantalla
     <Animated.View style={[styles.screen, { opacity: fadeAnim }]}>
       <SafeAreaView style={styles.screen} edges={['top']}>
         <ScrollView
@@ -86,10 +125,8 @@ export default function GameDetailScreen() {
               />
             </Animated.View>
 
-            {/* Overlay oscuro inferior */}
             <View style={styles.heroOverlay} />
 
-            {/* Botón volver flotante */}
             <TouchableOpacity
               onPress={() => router.back()}
               style={styles.backBtn}
@@ -98,7 +135,6 @@ export default function GameDetailScreen() {
               <GlowText variant="caption" color={COLORS.white}>← VOLVER</GlowText>
             </TouchableOpacity>
 
-            {/* Título encima de la imagen */}
             <View style={styles.heroTitleBlock}>
               <AstraBadge label={game.status} variant="status" />
               <GlowText variant="display" glow style={styles.heroTitle}>
@@ -136,12 +172,7 @@ export default function GameDetailScreen() {
 
             <AstraDivider variant="line" />
 
-            {/* Decoración inferior con símbolo */}
-            <GlowText
-              variant="display"
-              glow
-              style={styles.bottomSymbol}
-            >
+            <GlowText variant="display" glow style={styles.bottomSymbol}>
               ✦
             </GlowText>
           </Animated.View>
@@ -159,8 +190,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 64,
   },
-
-  // Hero
   heroContainer: {
     height:   300,
     position: 'relative',
@@ -179,15 +208,15 @@ const styles = StyleSheet.create({
     opacity:         0.55,
   },
   backBtn: {
-    position:        'absolute',
-    top:             16,
-    left:            20,
-    backgroundColor: COLORS.purpleAlpha30,
+    position:          'absolute',
+    top:               16,
+    left:              20,
+    backgroundColor:   COLORS.purpleAlpha30,
     paddingHorizontal: 12,
     paddingVertical:   6,
-    borderRadius:    6,
-    borderWidth:     1,
-    borderColor:     COLORS.purpleAlpha30,
+    borderRadius:      6,
+    borderWidth:       1,
+    borderColor:       COLORS.purpleAlpha30,
   },
   heroTitleBlock: {
     position: 'absolute',
@@ -200,8 +229,6 @@ const styles = StyleSheet.create({
     fontSize:   28,
     lineHeight: 34,
   },
-
-  // Contenido
   contentBlock: {
     paddingHorizontal: 24,
     paddingTop:        8,
@@ -211,10 +238,10 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   bottomSymbol: {
-    textAlign:   'center',
-    fontSize:    28,
-    marginTop:   8,
+    textAlign:    'center',
+    fontSize:     28,
+    marginTop:    8,
     marginBottom: 16,
-    opacity:     0.4,
+    opacity:      0.4,
   },
 });
