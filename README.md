@@ -1,53 +1,90 @@
-> Edited for use in IDX on 07/09/12
+# Astraeous
 
-# Welcome to your Expo app 👋
+Astraeous es una aplicación creada con Expo y `expo-router` que usa React Native y Tailwind para construir una experiencia multiplataforma. El proyecto está diseñado para ejecutarse en Android, iOS y web con navegación basada en archivos.
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Cómo funciona
 
-## Get started
+- `expo-router` gestiona las rutas usando la carpeta `app/`.
+- `app/_layout.tsx` define el contenedor raíz y carga los estilos globales.
+- Las pantallas se organizan en `app/(tabs)/` con rutas como `home`, `profile`, `projects` y `team`.
+- La carpeta `components/` contiene los componentes reutilizables ordenados por niveles:
+  - `atoms/`: componentes básicos como botones, avatares y separadores.
+  - `molecules/`: componentes compuestos como tarjetas y cabeceras.
+  - `organisms/`: secciones completas de página como `HomeHero`, `ProfileSection`, `ProjectsSection` y `TeamSection`.
+- `constants/` guarda configuración de diseño reutilizable como colores, juegos y tipografía.
+- `global.css` contiene estilos globales y utilidades Tailwind.
 
-#### Android
+## Instalación
 
-Android previews are defined as a `workspace.onStart` hook and started as a vscode task when the workspace is opened/started.
-
-Note, if you can't find the task, either:
-- Rebuild the environment (using command palette: `IDX: Rebuild Environment`), or
-- Run `npm run android -- --tunnel` command manually run android and see the output in your terminal. The device should pick up this new command and switch to start displaying the output from it.
-
-In the output of this command/task, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You'll also find options to open the app's developer menu, reload the app, and more.
-
-#### Web
-
-Web previews will be started and managred automatically. Use the toolbar to manually refresh.
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+1. Instalar dependencias:
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Iniciar el proyecto:
 
-## Learn more
+```bash
+npm start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+3. Ejecutar en Android:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npm run android
+```
 
-## Join the community
+4. Ejecutar en iOS:
 
-Join our community of developers creating universal apps.
+```bash
+npm run ios
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+5. Ejecutar en web:
+
+```bash
+npm run web
+```
+
+## Scripts principales
+
+- `npm start`: inicia el servidor de desarrollo de Expo.
+- `npm run android`: compila y ejecuta la app en un emulador/dispositivo Android.
+- `npm run ios`: compila y ejecuta la app en un emulador/dispositivo iOS.
+- `npm run web`: inicia la versión web de la app.
+- `npm run lint`: ejecuta ESLint.
+- `npm run reset-project`: mueve el código inicial a `app-example` y crea una carpeta `app` limpia.
+
+## Archivos y carpetas principales
+
+- `app/`: ruta principal de la aplicación.
+  - `_layout.tsx`: layout raíz con `SafeAreaView` y `Stack` de navegación.
+  - `index.tsx`: pantalla de inicio principal.
+  - `(tabs)/`: diseño de pestañas para la navegación dentro de la app.
+- `assets/`: imágenes, canciones y otros recursos estáticos.
+- `components/`: componentes reutilizables clasificados por nivel.
+- `constants/`: constantes de estilo y datos.
+- `global.css`: estilos globales compartidos.
+- `babel.config.js`, `tsconfig.json`, `tailwind.config.js`: configuración de compilación, TypeScript y Tailwind.
+- `app.json`, `eas.json`, `metro.config.js`: configuración de Expo y Metro.
+
+## Dependencias importantes
+
+- `expo`: plataforma base para la app.
+- `expo-router`: navegación basada en archivos.
+- `nativewind` y `tailwindcss`: estilos con Tailwind en React Native.
+- `react-native-safe-area-context`: manejo de áreas seguras.
+- `react-native-gesture-handler` y `react-native-reanimated`: animaciones y gestos.
+- `lucide`, `lucide-react-native`: iconos.
+
+## Uso básico
+
+- Edita las páginas dentro de `app/` para cambiar las rutas.
+- Agrega nuevos componentes en `components/` y reutilízalos en las pantallas.
+- Usa `constants/` para mantener colores y tipografía consistentes.
+- Coloca recursos de imágenes o audio en `assets/`.
+
+## Notas
+
+- La aplicación está pensada como una plantilla Expo con navegación en pestañas.
+- Si necesitas resetear el proyecto a una versión base, usa `npm run reset-project`.

@@ -153,7 +153,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({
       color={COLORS.whiteAlpha40}
       style={{ position: 'absolute', top: 12, left: 16, fontSize: 12, letterSpacing: 2 }}
     >
-      V1.5.5
+      V1.6.0
     </GlowText>
 
     <StarField />
