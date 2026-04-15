@@ -1,8 +1,6 @@
 import React from 'react';
-import { Image, ImageSourcePropType, View } from 'react-native';
-import { COLORS } from '../../constants/colors';
+import { Image, ImageSourcePropType, Pressable, View } from 'react-native';
 import AstraBadge from '../atoms/AstraBadge';
-import AstraButton from '../atoms/AstraButton';
 import GlowText from '../atoms/GlowText';
 
 export interface Project {
@@ -24,7 +22,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   thumbnailUri,
   onPress,
 }) => (
-  <View
+  <Pressable
+    accessibilityRole="button"
+    disabled={!onPress}
+    onPress={onPress}
     className="overflow-hidden rounded-[12px] border border-white-alpha-10 bg-background-card"
   >
     {/* Thumbnail */}
@@ -68,14 +69,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </GlowText>
       ) : null}
 
-      <AstraButton
-        label="VER PROYECTO"
-        variant="ghost"
-        onPress={onPress}
-        style={{ alignSelf: 'flex-start', marginTop: 4 }}
-      />
     </View>
-  </View>
+  </Pressable>
 );
 
 export default ProjectCard;
