@@ -15,7 +15,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/splash-icon.png",
+        "foregroundImage": "./assets/images/icon.png",
         "monochromeImage": "./assets/images/splash-icon.png"
       },
       "edgeToEdgeEnabled": true,
@@ -31,11 +31,11 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash.png",
-          "resizeMode": "cover",
-          "backgroundColor": "#0D0720",
+          "image": "./assets/images/icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#E6F4FE",
           "dark": {
-            "backgroundColor": "#0D0720"
+            "backgroundColor": "#E6F4FE"
           }
         }
       ]
