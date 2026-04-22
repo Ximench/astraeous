@@ -20,6 +20,7 @@ export interface ProfileData {
   rank:      UserRank;
   projects:  number | null;   // null = cargando / sin dato aún
   commits:   number | null;
+  avatarUrl?: string | null;
 }
 
 interface ProfileSectionProps {
@@ -97,7 +98,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({
 
       {/* Avatar */}
       <View className="items-center" style={{ marginTop: -42, marginBottom: 16 }}>
-        <AstraAvatar initials="US" size="lg" ring />
+        <AstraAvatar uri={data.avatarUrl ?? undefined} initials="US" size="lg" ring />
       </View>
 
       {/* Info */}

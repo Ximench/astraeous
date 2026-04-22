@@ -1,0 +1,69 @@
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { ActivityIndicator, Alert, View } from 'react-native';
+import { COLORS } from '../../constants/colors';
+import { useMemberSession } from '../../contexts/MemberSessionContext';
+import { fetchProfileById } from '../../lib/memberAuth';
+import { mapDbToProfileData } from '../../lib/profileMapper';
+import ProfileSection from './ProfileSection';
+
+export default function ProfileGate() {
+  const router = useRouter();
+  const { session, setSession, loading } = useMemberSession();
+  const [profileData, setProfileData] = React.useState<any>(null);
+  const [fetching, setFetching] = React.useState(false);
+
+  React.useEffect(() => {
+    if (loading) return;
+    if (!session) {
+      router.replace('/login');
+      return;
+    }
+
+    (async () => {
+      if (!session.profileId) {
+        setProfileData({
+          username: session.email ?? 'Miembro',
+          role: 'MIEMBRO',
+          status: session.status === 'activo' ? 'ACTIVO' : 'INACTIVO',
+        });
+        return;
+      }
+
+      setFetching(true);
+      try {
+        const dbProfile = await fetchProfileById(session.profileId);
+        setProfileData({
+          username: dbProfile.display_name ?? dbProfile.username ?? session.email ?? 'Miembro',
+          role: dbProfile.role ?? 'MIEMBRO',
+          status: session.status === 'activo' ? 'ACTIVO' : 'INACTIVO',
+          avatar_url: dbProfile.avatar_url ?? session.profilePhotoUrl ?? null,
+        });
+      } catch (e: any) {
+        Alert.alert('Error', e?.message ?? 'No se pudo cargar el perfil');
+      } finally {
+        setFetching(false);
+      }
+    })();
+  }, [loading, session, router]);
+
+  if (loading || fetching) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator color={COLORS.purpleStrong} />
+      </View>
+    );
+  }
+
+  const data = mapDbToProfileData(profileData ?? {});
+
+  return (
+    <ProfileSection
+      data={data}
+      onSignOut={() => {
+        setSession(null);
+        router.replace('/login');
+      }}
+    />
+  );
+}
