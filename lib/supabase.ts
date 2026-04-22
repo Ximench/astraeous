@@ -1,5 +1,5 @@
-import 'react-native-url-polyfill/auto';
 import { createClient } from '@supabase/supabase-js';
+import 'react-native-url-polyfill/auto';
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
 const supabaseAnonKey =

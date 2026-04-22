@@ -62,7 +62,7 @@ export default function MemberLoginScreen() {
                   status: res.member.status,
                 });
 
-                router.replace('/(tabs)/profile');
+                router.replace('/(tabs)/home');
               } catch (e: any) {
                 Alert.alert('Error', e?.message ?? 'No se pudo conectar a Supabase.');
               }

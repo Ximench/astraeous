@@ -6,6 +6,7 @@ import { useMemberSession } from '../../contexts/MemberSessionContext';
 import { fetchProfileById } from '../../lib/memberAuth';
 import { mapDbToProfileData } from '../../lib/profileMapper';
 import ProfileSection from './ProfileSection';
+import SessionDebugBanner from './SessionDebugBanner';
 
 export default function ProfileGate() {
   const router = useRouter();
@@ -23,7 +24,7 @@ export default function ProfileGate() {
     (async () => {
       if (!session.profileId) {
         setProfileData({
-          username: session.email ?? 'Miembro',
+          username: (session.email?.split('@')[0] ?? 'Miembro'),
           role: 'MIEMBRO',
           status: session.status === 'activo' ? 'ACTIVO' : 'INACTIVO',
         });
@@ -34,7 +35,7 @@ export default function ProfileGate() {
       try {
         const dbProfile = await fetchProfileById(session.profileId);
         setProfileData({
-          username: dbProfile.display_name ?? dbProfile.username ?? session.email ?? 'Miembro',
+          username: dbProfile.display_name ?? dbProfile.username ?? (session.email?.split('@')[0] ?? 'Miembro'),
           role: dbProfile.role ?? 'MIEMBRO',
           status: session.status === 'activo' ? 'ACTIVO' : 'INACTIVO',
           avatar_url: dbProfile.avatar_url ?? session.profilePhotoUrl ?? null,
@@ -49,8 +50,11 @@ export default function ProfileGate() {
 
   if (loading || fetching) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator color={COLORS.purpleStrong} />
+      <View className="flex-1">
+        <SessionDebugBanner />
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator color={COLORS.purpleStrong} />
+        </View>
       </View>
     );
   }
@@ -58,12 +62,15 @@ export default function ProfileGate() {
   const data = mapDbToProfileData(profileData ?? {});
 
   return (
-    <ProfileSection
-      data={data}
-      onSignOut={() => {
-        setSession(null);
-        router.replace('/login');
-      }}
-    />
+    <View className="flex-1">
+      <SessionDebugBanner />
+      <ProfileSection
+        data={data}
+        onSignOut={() => {
+          setSession(null);
+          router.replace('/login');
+        }}
+      />
+    </View>
   );
 }

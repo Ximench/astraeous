@@ -9,35 +9,107 @@ export type MemberRecord = {
   is_active: boolean;
 };
 
-export async function memberLogin(payload: { usernameOrEmail: string; password: string }) {
-  // The UI calls it "username", but the DB uses email.
-  const email = payload.usernameOrEmail.trim().toLowerCase();
+type LoginResult =
+  | { ok: true; member: MemberRecord }
+  | { ok: false; reason: 'not_found' | 'inactive' | 'bad_password' };
 
-  // TEST ONLY: compare hashes/strings stored in password_hash.
-  // For now we treat the entered password as the stored value.
-  const { data, error } = await supabase
-    .from('members')
-    .select('id,email,profile_id,profile_photo_url,status,is_active,password_hash')
-    .eq('email', email)
-    .maybeSingle();
+function buildEmailCandidates(input: string) {
+  const raw = input.trim().toLowerCase();
+  if (!raw) return [] as string[];
+  if (raw.includes('@')) return [raw];
+  // Allows nickname-only login even if DB uses nickname@astraeous.com
+  return [raw, `${raw}@astraeous.com`];
+}
 
-  if (error) throw error;
-  if (!data) return { ok: false as const, reason: 'not_found' as const };
-  if (!data.is_active) return { ok: false as const, reason: 'inactive' as const };
+async function memberLoginViaRest(payload: { usernameOrEmail: string; password: string }): Promise<LoginResult> {
+  const apiKey =
+    process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+    process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ??
+    process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const baseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
 
-  const matches = (data as any).password_hash === payload.password;
-  if (!matches) return { ok: false as const, reason: 'bad_password' as const };
+  if (!apiKey || !baseUrl) {
+    throw new Error('Faltan env vars de Supabase.');
+  }
 
-  const member: MemberRecord = {
-    id: data.id,
-    email: data.email,
-    profile_id: data.profile_id,
-    profile_photo_url: data.profile_photo_url,
-    status: (data.status ?? 'offline') as 'activo' | 'offline',
-    is_active: data.is_active,
-  };
+  const candidates = buildEmailCandidates(payload.usernameOrEmail);
+  for (const email of candidates) {
+    const url = `${baseUrl}/rest/v1/members?select=id,email,profile_id,profile_photo_url,status,is_active,password_hash&email=eq.${encodeURIComponent(
+      email
+    )}&limit=1`;
 
-  return { ok: true as const, member };
+    const res = await fetch(url, {
+      headers: {
+        apikey: apiKey,
+        Authorization: `Bearer ${apiKey}`,
+      },
+    });
+
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`Supabase REST error (${res.status}): ${body}`);
+    }
+
+    const rows = (await res.json()) as any[];
+    const data = rows?.[0];
+    if (!data) continue;
+
+    if (!data.is_active) return { ok: false, reason: 'inactive' };
+    if (data.password_hash !== payload.password) return { ok: false, reason: 'bad_password' };
+
+    return {
+      ok: true,
+      member: {
+        id: data.id,
+        email: data.email,
+        profile_id: data.profile_id,
+        profile_photo_url: data.profile_photo_url,
+        status: (data.status ?? 'offline') as 'activo' | 'offline',
+        is_active: data.is_active,
+      },
+    };
+  }
+
+  return { ok: false, reason: 'not_found' };
+}
+
+export async function memberLogin(payload: { usernameOrEmail: string; password: string }): Promise<LoginResult> {
+  const candidates = buildEmailCandidates(payload.usernameOrEmail);
+
+  // First try supabase-js
+  try {
+    for (const email of candidates) {
+      const { data, error } = await supabase
+        .from('members')
+        .select('id,email,profile_id,profile_photo_url,status,is_active,password_hash')
+        .eq('email', email)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (!data) continue;
+      if (!data.is_active) return { ok: false, reason: 'inactive' };
+
+      const matches = (data as any).password_hash === payload.password;
+      if (!matches) return { ok: false, reason: 'bad_password' };
+
+      return {
+        ok: true,
+        member: {
+          id: data.id,
+          email: data.email,
+          profile_id: data.profile_id,
+          profile_photo_url: data.profile_photo_url,
+          status: (data.status ?? 'offline') as 'activo' | 'offline',
+          is_active: data.is_active,
+        },
+      };
+    }
+
+    return { ok: false, reason: 'not_found' };
+  } catch {
+    // Fallback to REST in case supabase-js is misbehaving in this runtime
+    return memberLoginViaRest(payload);
+  }
 }
 
 export async function fetchProfileById(profileId: string) {
