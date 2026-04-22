@@ -1,20 +1,21 @@
-import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  Animated,
-  Image,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Animated,
+    Image,
+    ScrollView,
+    StyleSheet,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS } from '../constants/colors';
+import AstraButton from '../components/atoms/AstraButton';
 import AstraDivider from '../components/atoms/AstraDivider';
 import GlowText from '../components/atoms/GlowText';
-import AstraButton from '../components/atoms/AstraButton';
+import { COLORS } from '../constants/colors';
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 type UserStatus = 'ACTIVO' | 'INACTIVO';
@@ -24,21 +25,38 @@ const STATUS_COLORS: Record<UserStatus, string> = {
   INACTIVO: '#F87171',
 };
 
+export const STORAGE_KEY_STATUS = 'user:status';
+
 // ── Componente ────────────────────────────────────────────────────────────────
 export default function EditProfileScreen() {
   const router = useRouter();
 
-  const [photoUri,     setPhotoUri]     = useState<string | null>(null);
-  const [username,     setUsername]     = useState('Username');
-  const [status,       setStatus]       = useState<UserStatus>('ACTIVO');
-  const [editingName,  setEditingName]  = useState(false);
-  const [nameInput,    setNameInput]    = useState('Username');
+  const [photoUri,    setPhotoUri]    = useState<string | null>(null);
+  const [username,    setUsername]    = useState('Username');
+  const [status,      setStatus]      = useState<UserStatus>('ACTIVO');
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput,   setNameInput]   = useState('Username');
 
   // Animación de entrada
   const fadeAnim  = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(24)).current;
 
+  // ── Cargar status guardado al entrar ──────────────────────────────────────
   useEffect(() => {
+    const loadStatus = async () => {
+      try {
+        const saved = await AsyncStorage.getItem(STORAGE_KEY_STATUS);
+        if (saved === 'ACTIVO' || saved === 'INACTIVO') {
+          setStatus(saved);
+        }
+      } catch (e) {
+        console.warn('Error leyendo status:', e);
+      }
+    };
+
+    loadStatus();
+
+    // Animaciones de entrada
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue:         1,
@@ -78,9 +96,13 @@ export default function EditProfileScreen() {
     setEditingName(false);
   };
 
-  // ── Guardar todo (por ahora solo cierra) ───────────────────────────────────
-  const handleSave = () => {
-    // Aquí conectarás la BD cuando esté lista
+  // ── Guardar — persiste el status en AsyncStorage ──────────────────────────
+  const handleSave = async () => {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY_STATUS, status);
+    } catch (e) {
+      console.warn('Error guardando status:', e);
+    }
     router.back();
   };
 
@@ -107,7 +129,6 @@ export default function EditProfileScreen() {
               { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
             ]}
           >
-            {/* Título */}
             <GlowText variant="display" style={styles.pageTitle}>
               EDITAR PERFIL
             </GlowText>
@@ -282,8 +303,6 @@ const styles = StyleSheet.create({
     fontSize:   26,
     lineHeight: 32,
   },
-
-  // Foto
   photoRow: {
     flexDirection: 'row',
     alignItems:    'center',
@@ -332,8 +351,6 @@ const styles = StyleSheet.create({
     flex: 1,
     gap:  6,
   },
-
-  // Username
   inputRow: {
     flexDirection: 'row',
     alignItems:    'center',
@@ -382,8 +399,6 @@ const styles = StyleSheet.create({
     paddingVertical:   2,
     borderRadius:      4,
   },
-
-  // Status
   statusRow: {
     flexDirection: 'row',
     gap:           12,
