@@ -5,7 +5,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
     Animated,
     Image,
-    ScrollView,
     StyleSheet,
     TextInput,
     TouchableOpacity,
@@ -109,11 +108,7 @@ export default function EditProfileScreen() {
   return (
     <Animated.View style={[styles.screen, { opacity: fadeAnim }]}>
       <SafeAreaView style={styles.screen} edges={['top']}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-        >
+        
           {/* Botón volver */}
           <TouchableOpacity
             onPress={() => router.back()}
@@ -261,17 +256,7 @@ export default function EditProfileScreen() {
               fullWidth
               onPress={handleSave}
             />
-
-            <GlowText
-              variant="caption"
-              color={COLORS.whiteAlpha40}
-              style={styles.hint}
-            >
-              Los cambios se sincronizarán con la base de datos cuando esté disponible.
-            </GlowText>
-
           </Animated.View>
-        </ScrollView>
       </SafeAreaView>
     </Animated.View>
   );
