@@ -1,10 +1,13 @@
 import { Audio } from 'expo-av';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import { Pause, Play } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
+  Dimensions,
   Image,
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -16,13 +19,58 @@ import GlowText from '../../components/atoms/GlowText';
 import { COLORS } from '../../constants/colors';
 import { getGameById } from '../../constants/games';
 
-// ── Canciones por id de juego ─────────────────────────────────────────────────
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const VIDEO_HEIGHT = (SCREEN_WIDTH - 48) * (9 / 16); // ratio 16:9
+
+// ── Canciones ─────────────────────────────────────────────────────────────────
 const GAME_SONGS: Record<string, any> = {
   'outcome-memories': require('../../assets/GameSongs/OM.wav'),
   'grace':            require('../../assets/GameSongs/GR.wav'),
   'doors':            require('../../assets/GameSongs/DO.wav'),
 };
 
+// ── Componente de video individual ────────────────────────────────────────────
+const GameplayVideo: React.FC<{ source: any; index: number }> = ({ source, index }) => {
+  const player = useVideoPlayer(source, (p) => {
+    p.loop = false;
+    p.muted = false;
+  });
+
+  return (
+    <View style={videoStyles.wrapper}>
+      <GlowText variant="caption" color={COLORS.purpleWeak} style={videoStyles.label}>
+        GAMEPLAY {index + 1 > 1 ? `#${index + 1}` : ''}
+      </GlowText>
+      <VideoView
+        player={player}
+        style={videoStyles.video}
+        allowsFullscreen
+        allowsPictureInPicture
+        contentFit="contain"
+      />
+    </View>
+  );
+};
+
+const videoStyles = StyleSheet.create({
+  wrapper: {
+    gap: 8,
+  },
+  label: {
+    letterSpacing: 1.5,
+  },
+  video: {
+    width:        '100%',
+    height:       VIDEO_HEIGHT,
+    borderRadius: 10,
+    backgroundColor: COLORS.backgroundElevated,
+    borderWidth:  1,
+    borderColor:  COLORS.purpleAlpha30,
+    overflow:     'hidden',
+  },
+});
+
+// ── Pantalla principal ────────────────────────────────────────────────────────
 export default function GameDetailScreen() {
   const { id }   = useLocalSearchParams<{ id: string }>();
   const router   = useRouter();
@@ -30,14 +78,12 @@ export default function GameDetailScreen() {
   const soundRef = useRef<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // ── Animaciones ───────────────────────────────────────────────────────────
+  // Animaciones
   const fadeAnim   = useRef(new Animated.Value(0)).current;
   const slideAnim  = useRef(new Animated.Value(30)).current;
   const imageScale = useRef(new Animated.Value(1.08)).current;
 
-  // ── Audio + animaciones al montar ─────────────────────────────────────────
   useEffect(() => {
-    // Animaciones de entrada
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue:         1,
@@ -57,44 +103,33 @@ export default function GameDetailScreen() {
       }),
     ]).start();
 
-    // Cargar y reproducir canción del juego
     const loadAndPlay = async () => {
       try {
-        await Audio.setAudioModeAsync({
-          playsInSilentModeIOS: true,  // suena aunque el iPhone esté en silencio
-        });
-
+        await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
         const song = GAME_SONGS[id];
         if (!song) return;
-
         const { sound } = await Audio.Sound.createAsync(song, {
           shouldPlay: true,
           isLooping:  true,
           volume:     0.7,
         });
-
         soundRef.current = sound;
         setIsPlaying(true);
       } catch (e) {
-        // Si falla el audio la pantalla sigue funcionando
         console.warn('Error cargando audio:', e);
       }
     };
 
     loadAndPlay();
 
-    // Detener y liberar al salir de la pantalla
     return () => {
       setIsPlaying(false);
-      soundRef.current?.stopAsync().then(() => {
-        soundRef.current?.unloadAsync();
-      });
+      soundRef.current?.stopAsync().then(() => soundRef.current?.unloadAsync());
     };
   }, [id]);
 
   const toggleAudio = async () => {
     if (!soundRef.current) return;
-
     try {
       if (isPlaying) {
         await soundRef.current.pauseAsync();
@@ -108,13 +143,10 @@ export default function GameDetailScreen() {
     }
   };
 
-  // ── Juego no encontrado ───────────────────────────────────────────────────
   if (!game) {
     return (
       <SafeAreaView style={styles.screen}>
-        <GlowText variant="title" style={{ margin: 24 }}>
-          Juego no encontrado
-        </GlowText>
+        <GlowText variant="title" style={{ margin: 24 }}>Juego no encontrado</GlowText>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <GlowText variant="caption" color={COLORS.purpleStrong}>← VOLVER</GlowText>
         </TouchableOpacity>
@@ -125,46 +157,29 @@ export default function GameDetailScreen() {
   return (
     <Animated.View style={[styles.screen, { opacity: fadeAnim }]}>
       <SafeAreaView style={styles.screen} edges={['top']}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.floatingBackBtn}
-          activeOpacity={0.7}
-        >
+
+        {/* Botones flotantes */}
+        <TouchableOpacity onPress={() => router.back()} style={styles.floatingBackBtn} activeOpacity={0.7}>
           <GlowText variant="caption" color={COLORS.white}>← VOLVER</GlowText>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={toggleAudio}
-          style={styles.audioControlBtn}
-          activeOpacity={0.75}
-          accessibilityRole="button"
-          accessibilityLabel={isPlaying ? 'Pausar audio' : 'Reproducir audio'}
-        >
-          {isPlaying ? (
-            <Pause size={18} color={COLORS.white} strokeWidth={2.25} />
-          ) : (
-            <Play size={18} color={COLORS.white} fill={COLORS.white} strokeWidth={1.5} />
-          )}
+        <TouchableOpacity onPress={toggleAudio} style={styles.audioControlBtn} activeOpacity={0.75}>
+          {isPlaying
+            ? <Pause size={18} color={COLORS.white} strokeWidth={2.25} />
+            : <Play  size={18} color={COLORS.white} fill={COLORS.white} strokeWidth={1.5} />
+          }
         </TouchableOpacity>
 
-        <View style={styles.detailContent}>
-          {/* ── Hero: imagen con Ken Burns ── */}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* ── Hero ── */}
           <View style={styles.heroContainer}>
-            <Animated.View
-              style={[
-                styles.heroImageWrapper,
-                { transform: [{ scale: imageScale }] },
-              ]}
-            >
-              <Image
-                source={game.thumbnail}
-                style={styles.heroImage}
-                resizeMode="cover"
-              />
+            <Animated.View style={[styles.heroImageWrapper, { transform: [{ scale: imageScale }] }]}>
+              <Image source={game.thumbnail} style={styles.heroImage} resizeMode="cover" />
             </Animated.View>
-
             <View style={styles.heroOverlay} />
-
             <View style={styles.heroTitleBlock}>
               <AstraBadge label={game.status} variant="status" />
               <GlowText variant="display" glow style={styles.heroTitle}>
@@ -173,40 +188,41 @@ export default function GameDetailScreen() {
             </View>
           </View>
 
-          {/* ── Contenido animado ── */}
+          {/* ── Contenido ── */}
           <Animated.View
             style={[
               styles.contentBlock,
-              {
-                transform: [{ translateY: slideAnim }],
-                opacity:   fadeAnim,
-              },
+              { transform: [{ translateY: slideAnim }], opacity: fadeAnim },
             ]}
           >
             <AstraDivider variant="glow" />
 
-            <GlowText variant="caption" color={COLORS.purpleWeak}>
-              SOBRE EL JUEGO
-            </GlowText>
+            <GlowText variant="caption" color={COLORS.purpleWeak}>SOBRE EL JUEGO</GlowText>
 
             {game.description.split('\n\n').map((paragraph, i) => (
-              <GlowText
-                key={i}
-                variant="body"
-                color={COLORS.whiteAlpha80}
-                style={styles.paragraph}
-              >
+              <GlowText key={i} variant="body" color={COLORS.whiteAlpha80} style={styles.paragraph}>
                 {paragraph}
               </GlowText>
             ))}
 
+            {/* ── Videos de gameplay ── */}
+            {game.videos.length > 0 && (
+              <>
+                <AstraDivider variant="glow" />
+                <GlowText variant="caption" color={COLORS.purpleWeak}>GAMEPLAY</GlowText>
+
+                {game.videos.map((src, i) => (
+                  <GameplayVideo key={i} source={src} index={i} />
+                ))}
+              </>
+            )}
+
             <AstraDivider variant="line" />
 
-            <GlowText variant="display" glow style={styles.bottomSymbol}>
-              ✦
-            </GlowText>
+            <GlowText variant="display" glow style={styles.bottomSymbol}>✦</GlowText>
           </Animated.View>
-        </View>
+        </ScrollView>
+
       </SafeAreaView>
     </Animated.View>
   );
@@ -217,8 +233,39 @@ const styles = StyleSheet.create({
     flex:            1,
     backgroundColor: COLORS.background,
   },
-  detailContent: {
-    flex: 1,
+  scrollContent: {
+    paddingBottom: 64,
+  },
+  floatingBackBtn: {
+    position:          'absolute',
+    top:               12,
+    left:              20,
+    zIndex:            30,
+    backgroundColor:   COLORS.purpleAlpha30,
+    paddingHorizontal: 12,
+    paddingVertical:   6,
+    borderRadius:      6,
+    borderWidth:       1,
+    borderColor:       COLORS.purpleAlpha30,
+  },
+  audioControlBtn: {
+    position:       'absolute',
+    top:            12,
+    right:          20,
+    zIndex:         30,
+    backgroundColor: COLORS.purpleMid,
+    width:          52,
+    height:         52,
+    borderRadius:   26,
+    borderWidth:    1,
+    borderColor:    COLORS.purpleAlpha30,
+    alignItems:     'center',
+    justifyContent: 'center',
+    shadowColor:    COLORS.purpleStrong,
+    shadowOffset:   { width: 0, height: 4 },
+    shadowOpacity:  0.28,
+    shadowRadius:   10,
+    elevation:      6,
   },
   heroContainer: {
     height:   300,
@@ -247,37 +294,6 @@ const styles = StyleSheet.create({
     borderRadius:      6,
     borderWidth:       1,
     borderColor:       COLORS.purpleAlpha30,
-  },
-  floatingBackBtn: {
-    position:          'absolute',
-    top:               12,
-    left:              20,
-    zIndex:            30,
-    backgroundColor:   COLORS.purpleAlpha30,
-    paddingHorizontal: 12,
-    paddingVertical:   6,
-    borderRadius:      6,
-    borderWidth:       1,
-    borderColor:       COLORS.purpleAlpha30,
-  },
-  audioControlBtn: {
-    position:          'absolute',
-    top:               12,
-    right:             20,
-    zIndex:            30,
-    backgroundColor:   COLORS.purpleMid,
-    width:             52,
-    height:            52,
-    borderRadius:      26,
-    borderWidth:       1,
-    borderColor:       COLORS.purpleAlpha30,
-    alignItems:        'center',
-    justifyContent:    'center',
-    shadowColor:       COLORS.purpleStrong,
-    shadowOffset:      { width: 0, height: 4 },
-    shadowOpacity:     0.28,
-    shadowRadius:      10,
-    elevation:         6,
   },
   heroTitleBlock: {
     position: 'absolute',
