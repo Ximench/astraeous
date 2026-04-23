@@ -38,7 +38,7 @@ const RANK_CONFIG: Record<UserRank, { icon: React.ReactNode; color: string; desc
   INVITADO: {
     icon:        <Earth size={25} color={COLORS.yellowPale} />,
     color:       COLORS.yellowPale,
-    description: 'Miembro recién unido a Astraeous. Está conociendo el grupo y sus proyectos.',
+    description: 'Usuario recién unido a Astraeous. Está conociendo el grupo y sus proyectos.',
   },
   FUNDADOR: {
     icon:        <Shell size={25} color={COLORS.yellowPale} />,
