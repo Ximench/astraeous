@@ -10,15 +10,13 @@ export default function ProfileScreen() {
 
   const [profileData, setProfileData] = useState<ProfileData>({
     username: 'Username',
-    role:     'SCRIPTER',
+    role:     'INVITADO',
     status:   'ACTIVO',
     rank:     'INVITADO',
     projects: null,
-    commits:  null,
+    commits:  90,
   });
 
-  // useFocusEffect vuelve a leer el status cada vez que
-  // el usuario regresa desde edit-profile
   useFocusEffect(
     useCallback(() => {
       const loadStatus = async () => {
