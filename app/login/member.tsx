@@ -8,9 +8,12 @@ import StarField from '../../components/atoms/StarField';
 import AstraHeader from '../../components/molecules/ AstraHeader';
 import MemberLoginForm from '../../components/organisms/MemberLoginForm';
 import { COLORS } from '../../constants/colors';
+import { useMemberSession } from '../../contexts/MemberSessionContext';
+import { memberLogin } from '../../lib/memberAuth';
 
 export default function MemberLoginScreen() {
   const router = useRouter();
+  const { setSession } = useMemberSession();
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
@@ -36,11 +39,33 @@ export default function MemberLoginScreen() {
 
           <MemberLoginForm
             onCancel={() => router.back()}
-            onSubmit={({ username }) => {
-              // Placeholder hasta conectar auth real
-              Alert.alert('Ingreso (demo)', `Bienvenido, ${username}.`, [
-                { text: 'Continuar', onPress: () => router.replace('/(tabs)/profile') },
-              ]);
+            onSubmit={async ({ username, password }) => {
+              try {
+                const res = await memberLogin({ usernameOrEmail: username, password });
+
+                if (!res.ok) {
+                  const msg =
+                    res.reason === 'not_found'
+                      ? 'No existe ese usuario (email).'
+                      : res.reason === 'inactive'
+                        ? 'Cuenta desactivada.'
+                        : 'Contraseña incorrecta.';
+                  Alert.alert('No se pudo iniciar sesión', msg);
+                  return;
+                }
+
+                setSession({
+                  memberId: res.member.id,
+                  email: res.member.email,
+                  profileId: res.member.profile_id,
+                  profilePhotoUrl: res.member.profile_photo_url,
+                  status: res.member.status,
+                });
+
+                router.replace('/(tabs)/home');
+              } catch (e: any) {
+                Alert.alert('Error', e?.message ?? 'No se pudo conectar a Supabase.');
+              }
             }}
           />
         </View>

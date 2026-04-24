@@ -20,6 +20,7 @@ export interface ProfileData {
   rank:      UserRank;
   projects:  number | null;
   commits:   number | null;
+  avatarUrl?: string | null;
 }
 
 interface ProfileSectionProps {
@@ -82,6 +83,13 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({
 }) => {
   const [rankModalVisible, setRankModalVisible] = useState(false);
   const rankCfg = RANK_CONFIG[data.rank];
+  const subtitle = data.role.trim().toUpperCase() === 'INVITADO' ? 'INVITADO' : 'MIEMBRO DE ASTRAEOUS';
+  const avatarInitials = data.username
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('') || 'US';
 
   return (
     <>
@@ -107,14 +115,14 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({
 
         {/* Avatar */}
         <View className="items-center" style={{ marginTop: -42, marginBottom: 16 }}>
-          <AstraAvatar initials="US" size="lg" ring />
+          <AstraAvatar uri={data.avatarUrl ?? undefined} initials={avatarInitials} size="lg" ring />
         </View>
 
         {/* Info */}
         <View className="items-center px-6" style={{ gap: 4 }}>
           <GlowText variant="title" glow>{data.username}</GlowText>
           <GlowText variant="caption" color={COLORS.whiteAlpha40}>
-            MIEMBRO DE ASTRAEOUS
+            {subtitle}
           </GlowText>
 
           <View className="flex-row" style={{ gap: 8, marginTop: 4 }}>

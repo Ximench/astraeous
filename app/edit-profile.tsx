@@ -1,8 +1,8 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
+    ActivityIndicator,
     Animated,
     Image,
     StyleSheet,
@@ -15,6 +15,8 @@ import AstraButton from '../components/atoms/AstraButton';
 import AstraDivider from '../components/atoms/AstraDivider';
 import GlowText from '../components/atoms/GlowText';
 import { COLORS } from '../constants/colors';
+import { useMemberSession } from '../contexts/MemberSessionContext';
+import { fetchProfileById, updateMemberProfile } from '../lib/memberAuth';
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 type UserStatus = 'ACTIVO' | 'INACTIVO';
@@ -24,36 +26,58 @@ const STATUS_COLORS: Record<UserStatus, string> = {
   INACTIVO: '#F87171',
 };
 
-export const STORAGE_KEY_STATUS = 'user:status';
-
 // ── Componente ────────────────────────────────────────────────────────────────
 export default function EditProfileScreen() {
   const router = useRouter();
+  const { session, setSession, loading } = useMemberSession();
 
   const [photoUri,    setPhotoUri]    = useState<string | null>(null);
+  const [photoBase64, setPhotoBase64] = useState<string | null>(null);
+  const [photoMimeType, setPhotoMimeType] = useState<string | null>(null);
   const [username,    setUsername]    = useState('Username');
   const [status,      setStatus]      = useState<UserStatus>('ACTIVO');
   const [editingName, setEditingName] = useState(false);
   const [nameInput,   setNameInput]   = useState('Username');
+  const [saving,      setSaving]      = useState(false);
 
   // Animación de entrada
   const fadeAnim  = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(24)).current;
 
-  // ── Cargar status guardado al entrar ──────────────────────────────────────
+  // ── Cargar perfil desde DB ────────────────────────────────────────────────
   useEffect(() => {
-    const loadStatus = async () => {
+    const loadProfile = async () => {
+      if (loading) return;
+
+      if (!session) {
+        router.replace('/login');
+        return;
+      }
+
       try {
-        const saved = await AsyncStorage.getItem(STORAGE_KEY_STATUS);
-        if (saved === 'ACTIVO' || saved === 'INACTIVO') {
-          setStatus(saved);
+        if (session.profileId) {
+          const dbProfile = await fetchProfileById(session.profileId);
+          if (dbProfile) {
+            const initialUsername = dbProfile.display_name ?? dbProfile.username ?? (session.email?.split('@')[0] ?? 'Username');
+            setUsername(initialUsername);
+            setNameInput(initialUsername);
+            setStatus(session.status === 'activo' ? 'ACTIVO' : 'INACTIVO');
+            setPhotoUri(dbProfile.avatar_url ?? session.profilePhotoUrl ?? null);
+            return;
+          }
         }
+
+        const fallbackUsername = session.email?.split('@')[0] ?? 'Username';
+        setUsername(fallbackUsername);
+        setNameInput(fallbackUsername);
+        setStatus(session.status === 'activo' ? 'ACTIVO' : 'INACTIVO');
+        setPhotoUri(session.profilePhotoUrl ?? null);
       } catch (e) {
-        console.warn('Error leyendo status:', e);
+        console.warn('Error cargando perfil:', e);
       }
     };
 
-    loadStatus();
+    loadProfile();
 
     // Animaciones de entrada
     Animated.parallel([
@@ -69,7 +93,7 @@ export default function EditProfileScreen() {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [loading, router, session]);
 
   // ── Seleccionar foto ───────────────────────────────────────────────────────
   const pickPhoto = async () => {
@@ -81,10 +105,14 @@ export default function EditProfileScreen() {
       allowsEditing: true,
       aspect:        [1, 1],
       quality:       0.8,
+      base64:        true,
     });
 
     if (!result.canceled) {
-      setPhotoUri(result.assets[0].uri);
+      const asset = result.assets[0];
+      setPhotoUri(asset.uri);
+      setPhotoBase64(asset.base64 ?? null);
+      setPhotoMimeType(asset.mimeType ?? 'image/jpeg');
     }
   };
 
@@ -95,15 +123,50 @@ export default function EditProfileScreen() {
     setEditingName(false);
   };
 
-  // ── Guardar — persiste el status en AsyncStorage ──────────────────────────
+  // ── Guardar en DB ────────────────────────────────────────────────────────
   const handleSave = async () => {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY_STATUS, status);
-    } catch (e) {
-      console.warn('Error guardando status:', e);
+    if (!session) {
+      router.replace('/login');
+      return;
     }
-    router.back();
+
+    setSaving(true);
+    try {
+      const result = await updateMemberProfile({
+        memberId: session.memberId,
+        profileId: session.profileId,
+        username,
+        displayName: username,
+        status,
+        avatarUrl: photoBase64 ? null : photoUri,
+        avatarBlobBase64: photoBase64,
+        avatarMimeType: photoMimeType,
+      });
+
+      setSession({
+        memberId: result.member.id,
+        email: result.member.email,
+        profileId: result.member.profile_id,
+        profilePhotoUrl: result.member.profile_photo_url,
+        status: result.member.status,
+      });
+      router.back();
+    } catch (e) {
+      console.warn('Error guardando perfil:', e);
+    } finally {
+      setSaving(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.screen} edges={['top']}>
+        <View style={styles.loadingWrap}>
+          <ActivityIndicator color={COLORS.purpleStrong} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <Animated.View style={[styles.screen, { opacity: fadeAnim }]}>
@@ -251,10 +314,11 @@ export default function EditProfileScreen() {
 
             {/* ── Guardar ── */}
             <AstraButton
-              label="GUARDAR CAMBIOS"
+              label={saving ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
               variant="primary"
               fullWidth
               onPress={handleSave}
+              disabled={saving}
             />
           </Animated.View>
       </SafeAreaView>
@@ -283,6 +347,11 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 24,
     gap:               20,
+  },
+  loadingWrap: {
+    flex:            1,
+    alignItems:      'center',
+    justifyContent:  'center',
   },
   pageTitle: {
     fontSize:   26,
