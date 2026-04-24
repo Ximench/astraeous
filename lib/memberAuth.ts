@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { hasSupabaseConfig, supabase } from './supabase';
 
 export type MemberRecord = {
   id: string;
@@ -54,6 +54,16 @@ type LoginResult =
 
 const MEMBER_SELECT_COLUMNS = 'id,email,profile_id,profile_photo_url,status,is_active';
 
+function getSupabaseClient() {
+  if (!supabase) {
+    throw new Error(
+      'Faltan variables de entorno de Supabase en este build. Configura EXPO_PUBLIC_SUPABASE_URL y EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY en EAS.'
+    );
+  }
+
+  return supabase;
+}
+
 function buildEmailCandidates(input: string) {
   const raw = input.trim().toLowerCase();
   if (!raw) return [] as string[];
@@ -69,10 +79,13 @@ function buildProfileUsernameCandidates(input: string) {
 }
 
 async function resolveProfileForEmail(email: string) {
+  if (!hasSupabaseConfig) return null;
+
+  const client = getSupabaseClient();
   const candidates = buildProfileUsernameCandidates(email);
 
   for (const username of candidates) {
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('profiles')
       .select('id,username,display_name,bio,avatar_url,role,location,website')
       .or(`username.eq.${username},display_name.eq.${username}`)
@@ -86,7 +99,10 @@ async function resolveProfileForEmail(email: string) {
 }
 
 async function backfillMemberProfileLink(memberId: string, profileId: string) {
-  const { error } = await supabase
+  if (!hasSupabaseConfig) return;
+
+  const client = getSupabaseClient();
+  const { error } = await client
     .from('members')
     .update({ profile_id: profileId })
     .eq('id', memberId);
@@ -167,10 +183,16 @@ async function memberLoginViaRest(payload: { usernameOrEmail: string; password: 
 export async function memberLogin(payload: { usernameOrEmail: string; password: string }): Promise<LoginResult> {
   const candidates = buildEmailCandidates(payload.usernameOrEmail);
 
+  if (!hasSupabaseConfig) {
+    return memberLoginViaRest(payload);
+  }
+
+  const client = getSupabaseClient();
+
   // First try supabase-js
   try {
     for (const email of candidates) {
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from('members')
         .select(MEMBER_SELECT_COLUMNS)
         .eq('email', email)
@@ -180,7 +202,7 @@ export async function memberLogin(payload: { usernameOrEmail: string; password: 
       if (!data) continue;
       if (!data.is_active) return { ok: false, reason: 'inactive' };
 
-      const { data: verifiedMemberId, error: verifyError } = await supabase.rpc('verify_member_login', {
+      const { data: verifiedMemberId, error: verifyError } = await client.rpc('verify_member_login', {
         p_email: email,
         p_password_hash: payload.password,
       });
@@ -218,7 +240,10 @@ export async function memberLogin(payload: { usernameOrEmail: string; password: 
 }
 
 export async function fetchProfileById(profileId: string) {
-  const { data, error } = await supabase
+  if (!hasSupabaseConfig) return null;
+
+  const client = getSupabaseClient();
+  const { data, error } = await client
     .from('profiles')
     .select('id,username,display_name,bio,avatar_url,role,location,website')
     .eq('id', profileId)
@@ -228,7 +253,10 @@ export async function fetchProfileById(profileId: string) {
 }
 
 export async function fetchMemberById(memberId: string) {
-  const { data, error } = await supabase
+  if (!hasSupabaseConfig) return null;
+
+  const client = getSupabaseClient();
+  const { data, error } = await client
     .from('members')
     .select(MEMBER_SELECT_COLUMNS)
     .eq('id', memberId)
@@ -239,6 +267,8 @@ export async function fetchMemberById(memberId: string) {
 }
 
 export async function refreshStoredMemberSession(session: StoredMemberSession) {
+  if (!hasSupabaseConfig) return session;
+
   const member = await fetchMemberById(session.memberId);
   if (!member || !member.is_active) return null;
 
@@ -277,6 +307,13 @@ function buildProfilePayload(input: MemberProfileUpdateInput, fallbackRole?: str
 }
 
 export async function updateMemberProfile(input: MemberProfileUpdateInput): Promise<MemberProfileUpdateResult> {
+  if (!hasSupabaseConfig) {
+    throw new Error(
+      'Faltan variables de entorno de Supabase en este build. No se puede guardar el perfil sin EXPO_PUBLIC_SUPABASE_URL y EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY.'
+    );
+  }
+
+  const client = getSupabaseClient();
   const normalizedUsername = input.username.trim() || 'Miembro';
   const normalizedStatus = input.status === 'ACTIVO' ? 'activo' : 'offline';
   const hasAvatarBlob = Boolean(input.avatarBlobBase64?.trim());
@@ -285,7 +322,7 @@ export async function updateMemberProfile(input: MemberProfileUpdateInput): Prom
   let profileRecord: ProfileRecord | null = null;
 
   if (profileId) {
-    const { data: currentProfile, error: currentProfileError } = await supabase
+    const { data: currentProfile, error: currentProfileError } = await client
       .from('profiles')
       .select('id,username,display_name,bio,avatar_url,role,location,website')
       .eq('id', profileId)
@@ -293,7 +330,7 @@ export async function updateMemberProfile(input: MemberProfileUpdateInput): Prom
 
     if (currentProfileError) throw currentProfileError;
 
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('profiles')
       .upsert(
         {
@@ -308,7 +345,7 @@ export async function updateMemberProfile(input: MemberProfileUpdateInput): Prom
     if (error) throw error;
     profileRecord = (data ?? currentProfile) as ProfileRecord | null;
   } else {
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('profiles')
       .insert({
         ...buildProfilePayload(input, input.role ?? 'MIEMBRO'),
@@ -326,7 +363,7 @@ export async function updateMemberProfile(input: MemberProfileUpdateInput): Prom
   }
 
   if (hasAvatarBlob && profileId) {
-    const { data: avatarData, error: avatarError } = await supabase.rpc('save_profile_avatar_blob', {
+    const { data: avatarData, error: avatarError } = await client.rpc('save_profile_avatar_blob', {
       p_member_id: input.memberId,
       p_profile_id: profileId,
       p_avatar_base64: input.avatarBlobBase64,
@@ -345,7 +382,7 @@ export async function updateMemberProfile(input: MemberProfileUpdateInput): Prom
     }
   }
 
-  const { data: memberData, error: memberError } = await supabase
+  const { data: memberData, error: memberError } = await client
     .from('members')
     .update({
       status: normalizedStatus,
