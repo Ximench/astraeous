@@ -6,7 +6,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
-  Image,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -20,7 +19,6 @@ import { COLORS } from '../../constants/colors';
 import { getGameById } from '../../constants/games';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const VIDEO_HEIGHT = (SCREEN_WIDTH - 48) * (9 / 16); // ratio 16:9
 
 // ── Canciones ─────────────────────────────────────────────────────────────────
 const GAME_SONGS: Record<string, any> = {
@@ -29,46 +27,25 @@ const GAME_SONGS: Record<string, any> = {
   'doors':            require('../../assets/GameSongs/DO.wav'),
 };
 
-// ── Componente de video individual ────────────────────────────────────────────
-const GameplayVideo: React.FC<{ source: any; index: number }> = ({ source, index }) => {
+// ── Video Hero ────────────────────────────────────────────────────────────────
+const HeroVideo: React.FC<{ source: any }> = ({ source }) => {
   const player = useVideoPlayer(source, (p) => {
-    p.loop = false;
-    p.muted = false;
+    p.loop    = true;
+    p.muted   = true;
+    p.play();
   });
 
   return (
-    <View style={videoStyles.wrapper}>
-      <GlowText variant="caption" color={COLORS.purpleWeak} style={videoStyles.label}>
-        GAMEPLAY {index + 1 > 1 ? `#${index + 1}` : ''}
-      </GlowText>
-      <VideoView
-        player={player}
-        style={videoStyles.video}
-        allowsFullscreen
-        allowsPictureInPicture
-        contentFit="contain"
-      />
-    </View>
+    <VideoView
+      player={player}
+      style={StyleSheet.absoluteFill}
+      contentFit="cover"
+      allowsFullscreen={false}
+      allowsPictureInPicture={false}
+      nativeControls={false}
+    />
   );
 };
-
-const videoStyles = StyleSheet.create({
-  wrapper: {
-    gap: 8,
-  },
-  label: {
-    letterSpacing: 1.5,
-  },
-  video: {
-    width:        '100%',
-    height:       VIDEO_HEIGHT,
-    borderRadius: 10,
-    backgroundColor: COLORS.backgroundElevated,
-    borderWidth:  1,
-    borderColor:  COLORS.purpleAlpha30,
-    overflow:     'hidden',
-  },
-});
 
 // ── Pantalla principal ────────────────────────────────────────────────────────
 export default function GameDetailScreen() {
@@ -175,10 +152,8 @@ export default function GameDetailScreen() {
           contentContainerStyle={styles.scrollContent}
         >
           {/* ── Hero ── */}
-          <View style={styles.heroContainer}>
-            <Animated.View style={[styles.heroImageWrapper, { transform: [{ scale: imageScale }] }]}>
-              <Image source={game.thumbnail} style={styles.heroImage} resizeMode="cover" />
-            </Animated.View>
+          <Animated.View style={[styles.heroContainer, { transform: [{ scale: imageScale }] }]}>
+            {game.videos.length > 0 && <HeroVideo source={game.videos[0]} />}
             <View style={styles.heroOverlay} />
             <View style={styles.heroTitleBlock}>
               <AstraBadge label={game.status} variant="status" />
@@ -186,7 +161,7 @@ export default function GameDetailScreen() {
                 {game.title}
               </GlowText>
             </View>
-          </View>
+          </Animated.View>
 
           {/* ── Contenido ── */}
           <Animated.View
@@ -204,18 +179,6 @@ export default function GameDetailScreen() {
                 {paragraph}
               </GlowText>
             ))}
-
-            {/* ── Videos de gameplay ── */}
-            {game.videos.length > 0 && (
-              <>
-                <AstraDivider variant="glow" />
-                <GlowText variant="caption" color={COLORS.purpleWeak}>GAMEPLAY</GlowText>
-
-                {game.videos.map((src, i) => (
-                  <GameplayVideo key={i} source={src} index={i} />
-                ))}
-              </>
-            )}
 
             <AstraDivider variant="line" />
 
@@ -249,35 +212,28 @@ const styles = StyleSheet.create({
     borderColor:       COLORS.purpleAlpha30,
   },
   audioControlBtn: {
-    position:       'absolute',
-    top:            12,
-    right:          20,
-    zIndex:         30,
+    position:        'absolute',
+    top:             12,
+    right:           20,
+    zIndex:          30,
     backgroundColor: COLORS.purpleMid,
-    width:          52,
-    height:         52,
-    borderRadius:   26,
-    borderWidth:    1,
-    borderColor:    COLORS.purpleAlpha30,
-    alignItems:     'center',
-    justifyContent: 'center',
-    shadowColor:    COLORS.purpleStrong,
-    shadowOffset:   { width: 0, height: 4 },
-    shadowOpacity:  0.28,
-    shadowRadius:   10,
-    elevation:      6,
+    width:           52,
+    height:          52,
+    borderRadius:    26,
+    borderWidth:     1,
+    borderColor:     COLORS.purpleAlpha30,
+    alignItems:      'center',
+    justifyContent:  'center',
+    shadowColor:     COLORS.purpleStrong,
+    shadowOffset:    { width: 0, height: 4 },
+    shadowOpacity:   0.28,
+    shadowRadius:    10,
+    elevation:       6,
   },
   heroContainer: {
     height:   300,
     position: 'relative',
     overflow: 'hidden',
-  },
-  heroImageWrapper: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  heroImage: {
-    width:  '100%',
-    height: '100%',
   },
   heroOverlay: {
     ...StyleSheet.absoluteFillObject,

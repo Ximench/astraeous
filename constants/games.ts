@@ -22,8 +22,7 @@ export const GAMES: GameData[] = [
     status:    'EN DESARROLLO',
     thumbnail: GAME_PHOTOS.OM,
     videos: [
-      require('../assets/Gameplays/OM1.mp4'),
-      require('../assets/Gameplays/OM2.mp4'),
+      require('../assets/Gameplays/OM.mp4'),
     ],
     description:
       'Un lugar creado por un vacío desconocido, similar al uno X vino de. Es un purgatorio infernal, que mantiene cautivos tanto a los Verdugos como a los Supervivientes en líneas temporales infinitas con diferentes resultados.\n\nFue un popular fangame de terror asimétrico en Roblox, basado en el creepypasta de Sonic.EXE y sucesor espiritual de Sonic.EXE: The Disaster. Enfrentaba a sobrevivientes contra un verdugo (EXE) en un purgatorio con estética única.',
