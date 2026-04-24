@@ -1,28 +1,28 @@
 import React from 'react';
 import {
-    Text,
-    TouchableOpacity,
-    View,
-    ViewStyle,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
 } from 'react-native';
 import { FONTS } from '../../constants/typography';
 
-type ButtonVariant = 'primary' | 'secondary' | 'accent' | 'ghost';
+type ButtonVariant = 'primary' | 'secondary' | 'accent' | 'ghost' | 'danger';
 
 interface AstraButtonProps {
-  label: string;
-  variant?: ButtonVariant;
-  onPress?: () => void;
-  disabled?: boolean;
-  fullWidth?: boolean;
-  style?: ViewStyle;
+  label:      string;
+  variant?:   ButtonVariant;
+  onPress?:   () => void;
+  disabled?:  boolean;
+  fullWidth?:  boolean;
+  style?:     ViewStyle;
 }
 
 const AstraButton: React.FC<AstraButtonProps> = ({
   label,
-  variant = 'primary',
+  variant   = 'primary',
   onPress,
-  disabled = false,
+  disabled  = false,
   fullWidth = false,
   style,
 }) => {
@@ -31,6 +31,7 @@ const AstraButton: React.FC<AstraButtonProps> = ({
     secondary: 'border-[1.5px] border-purple-strong',
     accent:    'bg-yellow-pale',
     ghost:     'bg-purple-alpha-15',
+    danger:    'border-[1.5px] border-red-500 bg-red-500/10',
   };
 
   const labelClassNames: Record<ButtonVariant, string> = {
@@ -38,6 +39,7 @@ const AstraButton: React.FC<AstraButtonProps> = ({
     secondary: 'text-purple-strong',
     accent:    'text-purple-deep',
     ghost:     'text-white-alpha-80',
+    danger:    'text-red-500',
   };
 
   return (
@@ -49,20 +51,23 @@ const AstraButton: React.FC<AstraButtonProps> = ({
       style={[
         {
           paddingHorizontal: 24,
-          paddingVertical: 10,
-          borderRadius: 6,
+          paddingVertical:   10,
+          borderRadius:      6,
         },
-        fullWidth && { width: '100%' },
-        disabled && { opacity: 0.4 },
+        fullWidth  && { width: '100%' },
+        disabled   && { opacity: 0.4 },
         style,
       ]}
     >
       {variant === 'primary' && (
-        <View
-          className="absolute bottom-[4px] left-0 top-[4px] w-[3px] rounded-[2px] bg-yellow-pale"
-        />
+        <View className="absolute bottom-[4px] left-0 top-[4px] w-[3px] rounded-[2px] bg-yellow-pale" />
       )}
-      <Text className={labelClassNames[variant]} style={[FONTS.caption, { fontWeight: '700' }]}>{label}</Text>
+      <Text
+        className={labelClassNames[variant]}
+        style={[FONTS.caption, { fontWeight: '700' }]}
+      >
+        {label}
+      </Text>
     </TouchableOpacity>
   );
 };

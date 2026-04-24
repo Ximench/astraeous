@@ -61,7 +61,7 @@ const MemberLoginForm: React.FC<MemberLoginFormProps> = ({ onSubmit, onCancel })
         <AstraButton label="VOLVER" variant="ghost" fullWidth onPress={onCancel} />
 
         <GlowText variant="caption" color={COLORS.whiteAlpha40} style={{ textAlign: 'center' }}>
-          (Demo) Aún no hay backend de autenticación conectado.
+          (Demo) Usa email + contraseña (se valida contra la tabla members).
         </GlowText>
       </View>
     </View>

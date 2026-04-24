@@ -1,12 +1,14 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Alert, Pressable, ScrollView, View } from 'react-native';
 import AstraButton from '../atoms/AstraButton';
 import AstraDivider from '../atoms/AstraDivider';
 import GlowText from '../atoms/GlowText';
 import StarField from '../atoms/StarField';
 import AstraHeader from '../molecules/ AstraHeader';
 import MemberLoginForm from './MemberLoginForm';
+import { useMemberSession } from '../../contexts/MemberSessionContext';
+import { memberLogin } from '../../lib/memberAuth';
 
 type LoginMode = 'guest' | 'member';
 
@@ -52,6 +54,7 @@ function LoginModeTabs({
 
 const LoginGate: React.FC = () => {
   const router = useRouter();
+  const { setSession } = useMemberSession();
   const [mode, setMode] = React.useState<LoginMode>('guest');
 
   return (
@@ -121,9 +124,33 @@ const LoginGate: React.FC = () => {
 
               <MemberLoginForm
                 onCancel={() => setMode('guest')}
-                onSubmit={() => {
-                  // Placeholder hasta conectar auth real
-                  router.replace('/(tabs)/profile');
+                onSubmit={async ({ username, password }) => {
+                  try {
+                    const res = await memberLogin({ usernameOrEmail: username, password });
+
+                    if (!res.ok) {
+                      const msg =
+                        res.reason === 'not_found'
+                          ? 'No existe ese usuario.'
+                          : res.reason === 'inactive'
+                            ? 'Cuenta desactivada.'
+                            : 'Contraseña incorrecta.';
+                      Alert.alert('No se pudo iniciar sesión', msg);
+                      return;
+                    }
+
+                    setSession({
+                      memberId: res.member.id,
+                      email: res.member.email,
+                      profileId: res.member.profile_id,
+                      profilePhotoUrl: res.member.profile_photo_url,
+                      status: res.member.status,
+                    });
+
+                    router.replace('/(tabs)/home');
+                  } catch (e: any) {
+                    Alert.alert('Error', e?.message ?? 'No se pudo conectar a Supabase.');
+                  }
                 }}
               />
             </View>
