@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useMemberSession } from '../../contexts/MemberSessionContext';
 import GlowText from '../atoms/GlowText';
 
-export default function SessionDebugBanner() {
+export function SessionDebugBanner() {
   const { session, loading } = useMemberSession();
 
   // Only show in development builds
@@ -30,3 +30,6 @@ export default function SessionDebugBanner() {
     </View>
   );
 }
+
+
+export default SessionDebugBanner;

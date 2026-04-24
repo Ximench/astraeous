@@ -34,28 +34,48 @@ async function memberLoginViaRest(payload: { usernameOrEmail: string; password: 
 
   const candidates = buildEmailCandidates(payload.usernameOrEmail);
   for (const email of candidates) {
-    const url = `${baseUrl}/rest/v1/members?select=id,email,profile_id,profile_photo_url,status,is_active,password_hash&email=eq.${encodeURIComponent(
+    const lookupUrl = `${baseUrl}/rest/v1/members?select=id,email,profile_id,profile_photo_url,status,is_active&email=eq.${encodeURIComponent(
       email
     )}&limit=1`;
 
-    const res = await fetch(url, {
+    const lookupRes = await fetch(lookupUrl, {
       headers: {
         apikey: apiKey,
         Authorization: `Bearer ${apiKey}`,
       },
     });
 
-    if (!res.ok) {
-      const body = await res.text();
-      throw new Error(`Supabase REST error (${res.status}): ${body}`);
+    if (!lookupRes.ok) {
+      const body = await lookupRes.text();
+      throw new Error(`Supabase REST error (${lookupRes.status}): ${body}`);
     }
 
-    const rows = (await res.json()) as any[];
+    const rows = (await lookupRes.json()) as any[];
     const data = rows?.[0];
     if (!data) continue;
 
     if (!data.is_active) return { ok: false, reason: 'inactive' };
-    if (data.password_hash !== payload.password) return { ok: false, reason: 'bad_password' };
+
+    const verifyRes = await fetch(`${baseUrl}/rest/v1/rpc/verify_member_login`, {
+      method: 'POST',
+      headers: {
+        apikey: apiKey,
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        p_email: email,
+        p_password_hash: payload.password,
+      }),
+    });
+
+    if (!verifyRes.ok) {
+      const body = await verifyRes.text();
+      throw new Error(`Supabase REST error (${verifyRes.status}): ${body}`);
+    }
+
+    const verifiedMemberId = await verifyRes.json();
+    if (!verifiedMemberId) return { ok: false, reason: 'bad_password' };
 
     return {
       ok: true,
@@ -81,7 +101,7 @@ export async function memberLogin(payload: { usernameOrEmail: string; password: 
     for (const email of candidates) {
       const { data, error } = await supabase
         .from('members')
-        .select('id,email,profile_id,profile_photo_url,status,is_active,password_hash')
+        .select('id,email,profile_id,profile_photo_url,status,is_active')
         .eq('email', email)
         .maybeSingle();
 
@@ -89,8 +109,13 @@ export async function memberLogin(payload: { usernameOrEmail: string; password: 
       if (!data) continue;
       if (!data.is_active) return { ok: false, reason: 'inactive' };
 
-      const matches = (data as any).password_hash === payload.password;
-      if (!matches) return { ok: false, reason: 'bad_password' };
+      const { data: verifiedMemberId, error: verifyError } = await supabase.rpc('verify_member_login', {
+        p_email: email,
+        p_password_hash: payload.password,
+      });
+
+      if (verifyError) throw verifyError;
+      if (!verifiedMemberId) return { ok: false, reason: 'bad_password' };
 
       return {
         ok: true,
@@ -117,7 +142,7 @@ export async function fetchProfileById(profileId: string) {
     .from('profiles')
     .select('id,username,display_name,bio,avatar_url,role,location,website')
     .eq('id', profileId)
-    .single();
+    .maybeSingle();
   if (error) throw error;
   return data;
 }

@@ -8,6 +8,15 @@ import { mapDbToProfileData } from '../../lib/profileMapper';
 import ProfileSection from './ProfileSection';
 import SessionDebugBanner from './SessionDebugBanner';
 
+function buildFallbackProfile(session: { email?: string | null; status?: 'activo' | 'offline'; profilePhotoUrl?: string | null }) {
+  return {
+    username: session.email?.split('@')[0] ?? 'Miembro',
+    role: 'MIEMBRO',
+    status: session.status === 'activo' ? 'ACTIVO' : 'INACTIVO',
+    avatar_url: session.profilePhotoUrl ?? null,
+  };
+}
+
 export default function ProfileGate() {
   const router = useRouter();
   const { session, setSession, loading } = useMemberSession();
@@ -23,17 +32,18 @@ export default function ProfileGate() {
 
     (async () => {
       if (!session.profileId) {
-        setProfileData({
-          username: (session.email?.split('@')[0] ?? 'Miembro'),
-          role: 'MIEMBRO',
-          status: session.status === 'activo' ? 'ACTIVO' : 'INACTIVO',
-        });
+        setProfileData(buildFallbackProfile(session));
         return;
       }
 
       setFetching(true);
       try {
         const dbProfile = await fetchProfileById(session.profileId);
+        if (!dbProfile) {
+          setProfileData(buildFallbackProfile(session));
+          return;
+        }
+
         setProfileData({
           username: dbProfile.display_name ?? dbProfile.username ?? (session.email?.split('@')[0] ?? 'Miembro'),
           role: dbProfile.role ?? 'MIEMBRO',
